@@ -1,0 +1,2 @@
+we can save position, velocities of balls, position of click, time, ball clicked, if balls were overlapping, etc. 
+EX: maybe more likely to switch balls based on distance
