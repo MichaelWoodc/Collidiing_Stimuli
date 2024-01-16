@@ -1,2 +1,0 @@
-# Collidiing_Stimuli
- 
