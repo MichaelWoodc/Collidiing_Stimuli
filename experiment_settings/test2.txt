@@ -1,0 +1,20 @@
+Participant ID: 
+Number of Phases: 2
+Radius: [60,60,60,60,60,60,60]
+Reinforcement Value: 
+Reinforcement Type: 
+Color: [RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, VIOLET]
+Max Score Rate: [0.5,0.5,0.5,0.5,0.5,0.5,0.5]
+Speed Limits: 
+Initial Speed Range: 
+Number of Balls: 
+Duration of Phase: 
+Radius: 
+Reinforcement Value: 
+Reinforcement Type: 
+Color: 
+Max Score Rate: 
+Speed Limits: 
+Initial Speed Range: 
+Number of Balls: 
+Duration of Phase: 
