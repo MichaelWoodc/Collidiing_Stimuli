@@ -30,15 +30,16 @@ class ExperimentConfigWindow:
                 # Values from entry widgets for each phase
                 "duration_of_phase": self.get_entry_value_by_label(phase_num, "Duration of Phase"),
                 "number_of_balls": self.get_entry_value_by_label(phase_num, "Number of Balls"),
-                "initial_speeds": self.get_entry_value_by_label(phase_num, "Initial Speed"),
-                "speed_limits": self.get_entry_value_by_label(phase_num, "Speed Limits"),
-                "max_score_rate": self.get_entry_value_by_label(phase_num, "Max Score Rate"),
+
 
                 # Additional details for each ball
                 "color": self.get_entry_value_by_label(phase_num, "Color"),
                 "clicked_colors": self.get_entry_value_by_label(phase_num, "Clicked Colors"),
-                "reinforcement_ratio": self.get_entry_value_by_label(phase_num, "Reinforcement Ratio"),
-                "reinforcement_interval": self.get_entry_value_by_label(phase_num, "Reinforcement Interval"),
+                "fixed_interval": self.get_entry_value_by_label(phase_num, "Reinforcement Interval"),
+                "fixed_ratio": self.get_entry_value_by_label(phase_num, "Reinforcement Ratio"),
+                "initial_speeds": self.get_entry_value_by_label(phase_num, "Initial Speed"),
+                "speed_limits": self.get_entry_value_by_label(phase_num, "Speed Limits"),
+                # "fixed_interval": self.get_entry_value_by_label(phase_num, "Fixed Interval"),
                 "radius": self.get_entry_value_by_label(phase_num, "Radius"),
             }
             values_per_phase.append(phase_values)
@@ -129,7 +130,7 @@ class ExperimentConfigWindow:
             tk.Label(phase_frame, text="Speed Limits").grid(row=4, column=0, pady=(0, 5), sticky="w")
             tk.Entry(phase_frame).grid(row=4, column=1, pady=(0, 5), padx=5, sticky="w")  # Speed Limits
             
-            tk.Label(phase_frame, text="Max Score Rate").grid(row=5, column=0, pady=(0, 5), sticky="w")
+            tk.Label(phase_frame, text="Fixed Interval").grid(row=5, column=0, pady=(0, 5), sticky="w")
             tk.Entry(phase_frame).grid(row=5, column=1, pady=(0, 5), padx=5, sticky="w")  # Max Score Rate
 
             # Additional details for each ball
@@ -218,8 +219,8 @@ class ExperimentConfigWindow:
                                 widget.insert(0, value)
 
                 # Additional details for each ball
-                for phase_num in range(1, num_phases + 1):
-                    self.get_and_set_additional_details(entry_values_per_phase, phase_num)
+                # for phase_num in range(1, num_phases + 1):
+                #     self.get_and_set_additional_details(entry_values_per_phase, phase_num)
 
 
     def get_saved_files(self):

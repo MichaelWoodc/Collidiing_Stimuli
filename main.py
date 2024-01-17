@@ -415,7 +415,7 @@ def main():
         print('Current Phase',current_phase,'Number of Phases',number_phases,'Current time',current_seconds,'end time:',end_time,'Phase time:',phase_duration)
         phase_duration = phase_values[current_phase-1]['duration_of_phase'] # GET all values like thisvalues[0]['number_phases'] # GET all values like this values[current_phase-1]['phase_duration'] # GET all values like this
         print('phase time',phase_duration)
-        end_time += int(phase_duration)
+        # end_time = current_seconds+int(phase_duration)
         clock = pygame.time.Clock()
         load_phase_settings()
         main()
@@ -428,7 +428,7 @@ if __name__ == "__main__":
         clock = pygame.time.Clock()  # Reset the clock
         start_time = pygame.time.get_ticks()/1000
         phase_duration = phase_values[current_phase-1]['duration_of_phase']  # GET all values like this
-        end_time += int(phase_duration)  # end_time += pygame.time.get_ticks()/1000+int(phase_duration)
+        end_time = current_seconds + int(phase_duration)  # end_time += pygame.time.get_ticks()/1000+int(phase_duration)
         
         number_balls = phase_values[current_phase-1]['number_of_balls']
         
