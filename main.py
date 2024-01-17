@@ -31,23 +31,21 @@ SQUARE_COLOR = (255, 255, 255)
 SQUARE_THICKNESS = 4
 
 
-phase_values=None
-current_phase = 1
-number_phases = 3
-number_balls = 3
-end_time = 0
-# radius = 60
+
+############## INIT all values with defaults ########################
 current_total_time = 0
 current_phase_time = 0
 start_time = 0
-
-
-returnedvalues = None
-values=None
-############## INIT all values with defaults ########################
+end_time = 0
+current_phase = 1
 number_phases = 2
 phase_duration = 5
 number_balls = 3
+phase_values=None
+returnedvalues = None
+values=None
+yoked = False
+debug = False
 
 fixed_interval = [1,1,1,1,1,1,1]
 variable_interval = [(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5)]#(min,max) # FLOAT!
@@ -87,7 +85,7 @@ for n in range(number_phases):
         'block_score_until_time':block_score_until_time,
         'block_score_until_clicks':block_score_until_clicks        
     }
-
+    
 print(phase_values)
 # Initialize Pygame
 pygame.init()
@@ -109,8 +107,7 @@ windowX, windowY = displayX - padding, displayY - padding # Here I was subtracgi
 screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE)  #screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE,display=1)
 pygame.display.set_caption("Resizable Window")
 
-yoked = False
-debug = False
+
 # Set up the square
 square_color = (255, 0, 0)
 min_margin = 20
@@ -224,9 +221,9 @@ class Simulation:
         self.balls = self.init_balls(number_balls, radii, base_colors, clicked_colors,initial_speed,speed_limits,fixed_interval,change_over_delay,block_score_until_time) #Init balls by passing values
 
     def init_balls(self, number_balls, radii, base_colors, clicked_colors,initial_speed,speed_limits,min_score_delay,change_over_delay,block_score_until):
-        logtocsv.write_data(('################# INIT balls ######################'))
-        # global min_score_delay
         balls = []
+        logtocsv.write_data(('################# INIT balls ######################'))
+        # balls = []
         event_string = str(current_seconds) + ', Init stimuli, ' + str(total_score) + ', '  # event_string = str(pygame.time.get_ticks()/1000) + ', Init stimuli, ' + str(total_score) + ', '
 
 
@@ -265,6 +262,8 @@ class Simulation:
                 if not overlaps:
                     balls.append(ball)
                     break
+                else:
+                    print('Overlap Detected')
                 color = reverse_lookup.get(ball.color, "Unknown Color")
                 event_string += ' ' + str(color) +':'
                 event_string += ' x='+ str(int(ball.x)) +', '+ ' y='+ str(int(ball.y))+', ' + ' dx='+ str((ball.dx))+ ', '+' dy='+ str((ball.dy))  +', '+' clicks='+ str((ball.clicks))+', '+' score='+ str((ball.score))+','
@@ -426,7 +425,7 @@ if __name__ == "__main__":
     def load_phase_settings():
         global phase_duration, number_phases, phase_values, end_time, clock, start_time, initial_speed, number_balls, values
         clock = pygame.time.Clock()  # Reset the clock
-        start_time = pygame.time.get_ticks()/1000
+        # start_time = pygame.time.get_ticks()/1000
         phase_duration = phase_values[current_phase-1]['duration_of_phase']  # GET all values like this
         end_time = current_seconds + int(phase_duration)  # end_time += pygame.time.get_ticks()/1000+int(phase_duration)
         
@@ -439,6 +438,7 @@ if __name__ == "__main__":
     
     def callback(returnedvalues): # reassign all values
         global phase_duration, number_phases, phase_values, end_time, clock, start_time, initial_speed, number_balls, values
+        start_time = pygame.time.get_ticks()/1000
         print('Returned Values',returnedvalues)
         phase_values = returnedvalues
         config_window.root.destroy()
@@ -451,5 +451,6 @@ if __name__ == "__main__":
     # Start the Tkinter event loop
     root_main.mainloop()
     main()
+print(current_seconds)
 
 # %%
