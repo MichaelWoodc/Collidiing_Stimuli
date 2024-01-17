@@ -50,12 +50,12 @@ phase_duration = 5
 number_balls = 3
 
 fixed_interval = [1,1,1,1,1,1,1]
-variable_interval = [(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5)]#(min,max)
+variable_interval = [(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5)]#(min,max) # FLOAT!
 
 fixed_ratio = [1,1,1,1,1,1,1]
-variable_ratio = [(2,4),(2,4),(2,4),(2,4),(2,4),(2,4),(2,4)]
+variable_ratio = [(2,4),(2,4),(2,4),(2,4),(2,4),(2,4),(2,4)]#(min,max) #REMEMBER!  INT
 
-change_from_delay = [2,2,2,2,2,2,2]
+change_from_delay = [2,2,2,2,2,2,2] # We will take the min and max of this
 change_to_delay = [1,1,1,1,1,1,1]
 
 initial_speed = [1,1,1,1,1,1,1]
@@ -227,9 +227,9 @@ class Simulation:
         logtocsv.write_data(('################# INIT balls ######################'))
         # global min_score_delay
         balls = []
-        event_string = str(pygame.time.get_ticks()/1000) + ', Init stimuli, ' + str(total_score) + ', '
+        event_string = str(current_seconds) + ', Init stimuli, ' + str(total_score) + ', '  # event_string = str(pygame.time.get_ticks()/1000) + ', Init stimuli, ' + str(total_score) + ', '
 
-        
+
         for i in range(int(number_balls)):    
             radius = radii[i]
             speed = initial_speed[i]/10
