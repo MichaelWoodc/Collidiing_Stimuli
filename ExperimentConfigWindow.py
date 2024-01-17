@@ -30,7 +30,7 @@ class ExperimentConfigWindow:
                 # Values from entry widgets for each phase
                 "duration_of_phase": self.get_entry_value_by_label(phase_num, "Duration of Phase"),
                 "number_of_balls": self.get_entry_value_by_label(phase_num, "Number of Balls"),
-                "initial_speed_range": self.get_entry_value_by_label(phase_num, "Initial Speed Range"),
+                "initial_speeds": self.get_entry_value_by_label(phase_num, "Initial Speed"),
                 "speed_limits": self.get_entry_value_by_label(phase_num, "Speed Limits"),
                 "max_score_rate": self.get_entry_value_by_label(phase_num, "Max Score Rate"),
 
@@ -119,12 +119,16 @@ class ExperimentConfigWindow:
             tk.Label(phase_frame, text=f"Phase {phase_num}").grid(row=0, column=0, pady=(0, 5), sticky="w")
             tk.Label(phase_frame, text="Duration of Phase").grid(row=1, column=0, pady=(0, 5), sticky="w")
             tk.Entry(phase_frame).grid(row=1, column=1, pady=(0, 5), padx=5, sticky="w")  # Duration of Phase
+            
             tk.Label(phase_frame, text="Number of Balls").grid(row=2, column=0, pady=(0, 5), sticky="w")
             tk.Entry(phase_frame).grid(row=2, column=1, pady=(0, 5), padx=5, sticky="w")  # Number of Balls
-            tk.Label(phase_frame, text="Initial Speed Range").grid(row=3, column=0, pady=(0, 5), sticky="w")
-            tk.Entry(phase_frame).grid(row=3, column=1, pady=(0, 5), padx=5, sticky="w")  # Initial Speed Range
+            
+            tk.Label(phase_frame, text="Initial Speed").grid(row=3, column=0, pady=(0, 5), sticky="w")
+            tk.Entry(phase_frame).grid(row=3, column=1, pady=(0, 5), padx=5, sticky="w")  # Initial Speed
+            
             tk.Label(phase_frame, text="Speed Limits").grid(row=4, column=0, pady=(0, 5), sticky="w")
             tk.Entry(phase_frame).grid(row=4, column=1, pady=(0, 5), padx=5, sticky="w")  # Speed Limits
+            
             tk.Label(phase_frame, text="Max Score Rate").grid(row=5, column=0, pady=(0, 5), sticky="w")
             tk.Entry(phase_frame).grid(row=5, column=1, pady=(0, 5), padx=5, sticky="w")  # Max Score Rate
 
@@ -174,7 +178,7 @@ class ExperimentConfigWindow:
                 # Extract values from the loaded file and set them to the variables
                 participant_id = None
                 num_phases = None
-                entry_values = {}
+                entry_values_per_phase = {}  # Separate dictionary for each phase
 
                 for line in lines:
                     if "Participant ID" in line:
@@ -184,7 +188,16 @@ class ExperimentConfigWindow:
                     else:
                         parts = line.split(":")
                         if len(parts) == 2:
-                            entry_values[parts[0].strip()] = parts[1].strip()
+                            key = parts[0].strip()
+                            value = parts[1].strip()
+
+                            # Handle special cases for "Color" and "Clicked Color"
+                            if key == "Color" or key == "Clicked Color":
+                                # Parse the list from the string
+                                value_list = [item.strip() for item in value[1:-1].split(',')]
+                                entry_values_per_phase.setdefault(key, []).append(value_list)
+                            else:
+                                entry_values_per_phase.setdefault(key, []).append(value)
 
                 # Set participant ID and number of phases
                 self.participant_id_var.set(participant_id)
@@ -198,9 +211,16 @@ class ExperimentConfigWindow:
                     for widget in self.columns_frame.winfo_children()[phase_num - 1].grid_slaves():
                         if isinstance(widget, tk.Entry):
                             label_text = widget.master.grid_slaves(row=widget.grid_info()["row"], column=0)[0].cget("text")
-                            value = entry_values.get(label_text, "")
-                            widget.delete(0, tk.END)
-                            widget.insert(0, value)
+                            values_for_label = entry_values_per_phase.get(label_text, [])
+                            if len(values_for_label) >= phase_num:
+                                value = values_for_label[phase_num - 1]
+                                widget.delete(0, tk.END)
+                                widget.insert(0, value)
+
+                # Additional details for each ball
+                for phase_num in range(1, num_phases + 1):
+                    self.get_and_set_additional_details(entry_values_per_phase, phase_num)
+
 
     def get_saved_files(self):
         # Get a list of saved files in the experiment_settings folder
