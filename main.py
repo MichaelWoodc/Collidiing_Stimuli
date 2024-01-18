@@ -159,7 +159,7 @@ reverse_lookup = {v: k for k, v in color_names.items()}
 text_rect = None
 # %%
 class Balls:
-    # ball = ball(x, y, dx, dy, radius, color, ball_color,clicked_colors[i],reinforcement_interval,change_over_delay)
+
     def __init__(self, x, y, dx, dy, radius, ball_color, clicked_color,min_score_delay,speed_limits,change_over_delay,block_score_until_time,fixed_interval):#fixed_ratio
         print('Speed limits',speed_limits)
         self.x = x
@@ -222,15 +222,14 @@ class Simulation:
     def init_balls(self, number_balls, radii, base_colors, clicked_colors,initial_speed,speed_limits,min_score_delay,change_over_delay,block_score_until):
         balls = []
         logtocsv.write_data(('################# INIT balls ######################'))
-        # balls = []
+
         event_string = str(current_seconds) + ', Init stimuli, ' + str(total_score) + ', '  # event_string = str(pygame.time.get_ticks()/1000) + ', Init stimuli, ' + str(total_score) + ', '
 
 
         for i in range(int(number_balls)):    
             radius = radii[i]
             speed = initial_speed[i]/10
-            # speed_limits[i]
-            # change_over_delay = change_over_delay[i]
+
             while True:
                 x = np.random.uniform(radius, windowX - radii[i])
                 y = np.random.uniform(radius, windowY - radii[i])
@@ -267,11 +266,6 @@ class Simulation:
                 event_string += ' ' + str(color) +':'
                 event_string += ' x='+ str(int(ball.x)) +', '+ ' y='+ str(int(ball.y))+', ' + ' dx='+ str((ball.dx))+ ', '+' dy='+ str((ball.dy))  +', '+' clicks='+ str((ball.clicks))+', '+' score='+ str((ball.score))+','
 
-        # for ball in balls:
-        #     color = reverse_lookup.get(ball.color, "Unknown Color")
-        #     event_string += ' ' + str(color) +':'
-        #     event_string += ' x='+ str(int(ball.x)) +', '+ ' y='+ str(int(ball.y))+', ' + ' dx='+ str((ball.dx))+ ', '+' dy='+ str((ball.dy))  +', '+' clicks='+ str((ball.clicks))+', '+' score='+ str((ball.score))+','
-        #     # 66.333, 0, Clicked ORANGE, x=370 y=540 RED x=688 y=431 dx=0.10210023218610983 dy=-0.11956539525490884 clicks=0 score=0 ORANGE x=355 y=557 dx=0.10852871091956233 dy=0.11269186047523638 clicks=1 score=0 YELLOW x=1177 y=538 dx=-0.11534114878188889 dy=-0.1124286037571398 clicks=0 score=0
         logtocsv.write_data(event_string)    
         return balls
 
@@ -406,7 +400,7 @@ def main():
         text = font.render("Shuffle", True, (255, 255, 255))
         screen.blit(text, (windowX - 140, 25))
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(30)
     current_phase += 1
     print('Current time',current_seconds,'end tiime',end_time)
     if current_phase <= number_phases:
@@ -438,6 +432,7 @@ if __name__ == "__main__":
     def callback(returnedvalues): # reassign all values
         global phase_duration, number_phases, phase_values, end_time, clock, start_time, initial_speed, number_balls, values
         start_time = pygame.time.get_ticks()/1000
+        number_phases = returnedvalues[0]['number_phases']
         print('Returned Values',returnedvalues)
         phase_values = returnedvalues
         config_window.root.destroy()
