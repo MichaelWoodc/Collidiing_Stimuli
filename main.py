@@ -31,7 +31,6 @@ SQUARE_COLOR = (255, 255, 255)
 SQUARE_THICKNESS = 4
 
 
-
 ############## INIT all values with defaults ########################
 current_total_time = 0
 current_phase_time = 0
@@ -100,11 +99,11 @@ print('experiment date:',experimentdate)
 # Set up the window
 os.environ["SDL_VIDEO_CENTERED"] = "1"
 clock = pygame.time.Clock()
-padding = 0
+padding = 300
 surface = pygame.display.set_mode()
 displayX, displayY = surface.get_size()
 windowX, windowY = displayX - padding, displayY - padding # Here I was subtracging padding
-screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE)  #screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE,display=1)
+screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE,display=1)  #screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE,display=1)
 pygame.display.set_caption("Resizable Window")
 
 
