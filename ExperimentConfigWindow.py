@@ -1,3 +1,4 @@
+### Jan 22 2024
 import tkinter as tk
 from tkinter import filedialog
 import os
@@ -40,7 +41,7 @@ class ExperimentConfigWindow:
                 "initial_speeds": self.get_entry_value_by_label(phase_num, "Speed"),
                 "speed_limits": self.get_entry_value_by_label(phase_num, "Speed Limits"),
                 # "fixed_interval": self.get_entry_value_by_label(phase_num, "Fixed Interval"),
-                "radius": self.get_entry_value_by_label(phase_num, "Radius"),
+                "radii": self.get_entry_value_by_label(phase_num, "Radii"),
             }
             values_per_phase.append(phase_values)
         print(values_per_phase)
@@ -151,7 +152,7 @@ class ExperimentConfigWindow:
             tk.Label(phase_frame, text="Reinforcement Ratio").grid(row=13, column=0, pady=(0, 5), sticky="w")
             tk.Entry(phase_frame).grid(row=13, column=1, pady=(0, 5), padx=5, sticky="w")  # Reinforcement Value
 
-            tk.Label(phase_frame, text="Radius").grid(row=14, column=0, pady=(0, 5), sticky="w")
+            tk.Label(phase_frame, text="Radii").grid(row=14, column=0, pady=(0, 5), sticky="w")
             tk.Entry(phase_frame).grid(row=14, column=1, pady=(0, 5), padx=5, sticky="w")  # Radius
 
     def save_settings(self):

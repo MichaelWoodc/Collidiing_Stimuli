@@ -1,3 +1,4 @@
+### Jan 22 2024
 # %%
 import logtocsv
 # logtocsv.write_data(string)
@@ -49,7 +50,7 @@ debug = False
 scoring_intervals = [1,1,1,1,1,1,1]
 variable_interval = [(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5)]#(min,max) # FLOAT!
 
-fixed_ratio = [1,1,1,1,1,1,1]
+reinforcement_ratio = [1,1,1,1,1,1,1]
 variable_ratio = [(2,4),(2,4),(2,4),(2,4),(2,4),(2,4),(2,4)]#(min,max) #REMEMBER!  INT
 
 change_from_delay = [2,2,2,2,2,2,2] # We will take the min and max of this
@@ -72,7 +73,7 @@ for n in range(number_phases):
         'number_balls': phase_duration,
         'scoring_intervals':scoring_intervals,
         'variable_interval':variable_interval,
-        'fixed_ratio':fixed_ratio,
+        'reinforcement_ratio':reinforcement_ratio,
         'variable_ratio':variable_ratio,
         'change_from_delay':change_from_delay,
         'change_to_delay':change_to_delay,
@@ -160,7 +161,7 @@ text_rect = None
 # %%
 class Balls:
 
-    def __init__(self, x, y, dx, dy, radius, ball_color, clicked_color,min_score_delay,speed_limits,change_over_delay,scoring_intervals,fixed_ratio):#fixed_ratio
+    def __init__(self, x, y, dx, dy, radius, ball_color, clicked_color,min_score_delay,speed_limits,change_over_delay,scoring_intervals,reinforcement_ratio):#reinforcement_ratio
         print('Speed limits',speed_limits)
         self.x = x
         self.y = y
@@ -183,7 +184,7 @@ class Balls:
         self.valid_clicks = 0 # set the amount of clicks to zero, so we can use the fixed ratio & interval
         self.scoring_intervals = scoring_intervals
         
-        self.fixed_ratio = fixed_ratio
+        self.reinforcement_ratio = reinforcement_ratio
 
     def draw(self, screen):
         pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
@@ -218,16 +219,16 @@ class Simulation:
         global base_colors, clicked_colors
         base_colors = base_colors  #base_colors = base_colors or [(0, 0, 255) for _ in range(number_balls)]
         clicked_colors = clicked_colors or [(128, 128, 128) for _ in range(number_balls)]
-        self.balls = self.init_balls(number_balls, radii, base_colors, clicked_colors,initial_speed,speed_limits,scoring_intervals,change_over_delay,block_score_until_time,fixed_ratio) #Init balls by passing values
+        self.balls = self.init_balls(number_balls, radii, base_colors, clicked_colors,initial_speed,speed_limits,scoring_intervals,change_over_delay,block_score_until_time,reinforcement_ratio) #Init balls by passing values
 
-    def init_balls(self, number_balls, radii, base_colors, clicked_colors,initial_speed,speed_limits,min_score_delay,change_over_delay,block_score_until,fixed_ratio):
+    def init_balls(self, number_balls, radii, base_colors, clicked_colors,initial_speed,speed_limits,min_score_delay,change_over_delay,block_score_until,reinforcement_ratio):
         balls = []
         logtocsv.write_data(('################# INIT balls ######################'))
 
         event_string = str(current_seconds) + ', Init stimuli, ' + str(total_score) + ', '  # event_string = str(pygame.time.get_ticks()/1000) + ', Init stimuli, ' + str(total_score) + ', '
 
         for i in range(int(number_balls)):  
-            # fixed_ratio = fixed_ratio[i]  
+            # reinforcement_ratio = reinforcement_ratio[i]  
             radius = radii[i]
             speed = initial_speed[i]/10
 
@@ -246,8 +247,8 @@ class Simulation:
                 color = base_colors[i]
                 radius = radii[i]
                 # ball_color = reverse_lookup.get(color)
-                print('Fixed Ratio',fixed_ratio)
-                ball = Balls(x, y, dx, dy, radius,base_colors[i],clicked_colors[i],min_score_delay[i],speed_limits[i],block_score_until[i],scoring_intervals[i],fixed_ratio[i]) # ball = ball(x, y, dx, dy, radius, color, base_colors[i],clicked_colors[i],min_score_delay[i],change_over_delay[i],block_score_until[i],scoring_intervals[i],fixed_ratio[i])
+                print('Fixed Ratio',reinforcement_ratio)
+                ball = Balls(x, y, dx, dy, radius,base_colors[i],clicked_colors[i],min_score_delay[i],speed_limits[i],block_score_until[i],scoring_intervals[i],reinforcement_ratio[i]) # ball = ball(x, y, dx, dy, radius, color, base_colors[i],clicked_colors[i],min_score_delay[i],change_over_delay[i],block_score_until[i],scoring_intervals[i],reinforcement_ratio[i])
                 event_string += str(ball.colorname)+ ' x='+ str(int(ball.x)) + ' y='+ str(int(ball.y)) + ' dx='+ str((ball.dx))+ ' dy='+ str((ball.dy)) + ' clicks='+ str((ball.clicks))+ ' score='+ str((ball.score))+', '
 
                 ### TODO: overlaps check here and edit 
@@ -417,14 +418,16 @@ if __name__ == "__main__":
     root_main = tk.Tk()
     
     def load_phase_settings():
-        global phase_duration, number_phases, phase_values, end_time, clock, start_time, initial_speed, number_balls, values
+        global phase_duration, number_phases, phase_values, end_time, clock, start_time, initial_speed, number_balls, values, radii
         clock = pygame.time.Clock()  # Reset the clock
         # start_time = pygame.time.get_ticks()/1000
         phase_duration = phase_values[current_phase-1]['duration_of_phase']  # GET all values like this
         end_time = current_seconds + int(phase_duration)  # end_time += pygame.time.get_ticks()/1000+int(phase_duration)
         
         number_balls = phase_values[current_phase-1]['number_of_balls']
-        
+        radii= phase_values[current_phase-1]['radii']
+        radii = radii.strip('[]')
+        radii = [int(value) for value in radii.split(',')]
         initial_speed_str = phase_values[current_phase-1]['initial_speeds']
         initial_speed_str = initial_speed_str.strip('[]')  # Remove brackets # initial_speed = [value.strip("[]") for value in initial_speed]
         try:
@@ -434,7 +437,7 @@ if __name__ == "__main__":
             initial_speed = [1,1,1,1,1,1,1]#[float(value) for value in initial_speed_str.split(',')] # initial_speed = [int(value) for value in initial_speed]
 
     def callback(returnedvalues): # reassign all values
-        global phase_duration, number_phases, phase_values, end_time, clock, start_time, initial_speed, number_balls, values
+        global phase_duration, number_phases, phase_values, end_time, clock, start_time, initial_speed, number_balls, values, radii
         start_time = pygame.time.get_ticks()/1000
         number_phases = returnedvalues[0]['number_phases']
         print('Returned Values',returnedvalues)
