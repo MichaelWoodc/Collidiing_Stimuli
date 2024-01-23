@@ -454,4 +454,3 @@ if __name__ == "__main__":
     main()
 print(current_seconds)
 
-# %%
