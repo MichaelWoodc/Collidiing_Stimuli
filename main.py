@@ -46,7 +46,7 @@ values=None
 yoked = False
 debug = False
 
-fixed_interval = [1,1,1,1,1,1,1]
+scoring_intervals = [1,1,1,1,1,1,1]
 variable_interval = [(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5)]#(min,max) # FLOAT!
 
 fixed_ratio = [1,1,1,1,1,1,1]
@@ -70,7 +70,7 @@ for n in range(number_phases):
     phase_values = {
         'phase_duration': phase_duration,
         'number_balls': phase_duration,
-        'fixed_interval':fixed_interval,
+        'scoring_intervals':scoring_intervals,
         'variable_interval':variable_interval,
         'fixed_ratio':fixed_ratio,
         'variable_ratio':variable_ratio,
@@ -160,7 +160,7 @@ text_rect = None
 # %%
 class Balls:
 
-    def __init__(self, x, y, dx, dy, radius, ball_color, clicked_color,min_score_delay,speed_limits,change_over_delay,block_score_until_time,fixed_interval):#fixed_ratio
+    def __init__(self, x, y, dx, dy, radius, ball_color, clicked_color,min_score_delay,speed_limits,change_over_delay,scoring_intervals,fixed_ratio):#fixed_ratio
         print('Speed limits',speed_limits)
         self.x = x
         self.y = y
@@ -181,7 +181,8 @@ class Balls:
         self.change_over_delay = change_over_delay
         self.no_score_until = 0
         self.valid_clicks = 0 # set the amount of clicks to zero, so we can use the fixed ratio & interval
-        self.fixed_interval = fixed_interval
+        self.scoring_intervals = scoring_intervals
+        
         self.fixed_ratio = fixed_ratio
 
     def draw(self, screen):
@@ -217,16 +218,16 @@ class Simulation:
         global base_colors, clicked_colors
         base_colors = base_colors  #base_colors = base_colors or [(0, 0, 255) for _ in range(number_balls)]
         clicked_colors = clicked_colors or [(128, 128, 128) for _ in range(number_balls)]
-        self.balls = self.init_balls(number_balls, radii, base_colors, clicked_colors,initial_speed,speed_limits,fixed_interval,change_over_delay,block_score_until_time) #Init balls by passing values
+        self.balls = self.init_balls(number_balls, radii, base_colors, clicked_colors,initial_speed,speed_limits,scoring_intervals,change_over_delay,block_score_until_time,fixed_ratio) #Init balls by passing values
 
-    def init_balls(self, number_balls, radii, base_colors, clicked_colors,initial_speed,speed_limits,min_score_delay,change_over_delay,block_score_until):
+    def init_balls(self, number_balls, radii, base_colors, clicked_colors,initial_speed,speed_limits,min_score_delay,change_over_delay,block_score_until,fixed_ratio):
         balls = []
         logtocsv.write_data(('################# INIT balls ######################'))
 
         event_string = str(current_seconds) + ', Init stimuli, ' + str(total_score) + ', '  # event_string = str(pygame.time.get_ticks()/1000) + ', Init stimuli, ' + str(total_score) + ', '
 
-
-        for i in range(int(number_balls)):    
+        for i in range(int(number_balls)):  
+            # fixed_ratio = fixed_ratio[i]  
             radius = radii[i]
             speed = initial_speed[i]/10
 
@@ -245,11 +246,10 @@ class Simulation:
                 color = base_colors[i]
                 radius = radii[i]
                 # ball_color = reverse_lookup.get(color)
-                ball = Balls(x, y, dx, dy, radius,base_colors[i],clicked_colors[i],min_score_delay[i],
-                             speed_limits[i],block_score_until[i],fixed_interval[i],fixed_ratio[i]) # ball = ball(x, y, dx, dy, radius, color, base_colors[i],clicked_colors[i],min_score_delay[i],change_over_delay[i],block_score_until[i],fixed_interval[i],fixed_ratio[i])
+                print('Fixed Ratio',fixed_ratio)
+                ball = Balls(x, y, dx, dy, radius,base_colors[i],clicked_colors[i],min_score_delay[i],speed_limits[i],block_score_until[i],scoring_intervals[i],fixed_ratio[i]) # ball = ball(x, y, dx, dy, radius, color, base_colors[i],clicked_colors[i],min_score_delay[i],change_over_delay[i],block_score_until[i],scoring_intervals[i],fixed_ratio[i])
                 event_string += str(ball.colorname)+ ' x='+ str(int(ball.x)) + ' y='+ str(int(ball.y)) + ' dx='+ str((ball.dx))+ ' dy='+ str((ball.dy)) + ' clicks='+ str((ball.clicks))+ ' score='+ str((ball.score))+', '
 
-                
                 ### TODO: overlaps check here and edit 
                 overlaps = any(
                     np.hypot(ball.x - p.x, ball.y - p.y) < ball.radius + p.radius
@@ -258,6 +258,7 @@ class Simulation:
                 )
 
                 if not overlaps:
+                    print('Appending ball to list')
                     balls.append(ball)
                     break
                 else:
@@ -319,7 +320,7 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     # logtocsv.write_data(str(current_seconds)+' Testing doing a random string')
-                    
+
                     for ball in sim.balls:
                         # if current_seconds > ball.block_score_until:
                         #     break
@@ -426,9 +427,12 @@ if __name__ == "__main__":
         
         initial_speed_str = phase_values[current_phase-1]['initial_speeds']
         initial_speed_str = initial_speed_str.strip('[]')  # Remove brackets # initial_speed = [value.strip("[]") for value in initial_speed]
-        initial_speed = [float(value) for value in initial_speed_str.split(',')] # initial_speed = [int(value) for value in initial_speed]
-        
-    
+        try:
+            initial_speed = [float(value) for value in initial_speed_str.split(',')] # initial_speed = [int(value) for value in initial_speed]
+        except:
+            print('Had to select default initial speeds, fix the program you dummy!')
+            initial_speed = [1,1,1,1,1,1,1]#[float(value) for value in initial_speed_str.split(',')] # initial_speed = [int(value) for value in initial_speed]
+
     def callback(returnedvalues): # reassign all values
         global phase_duration, number_phases, phase_values, end_time, clock, start_time, initial_speed, number_balls, values
         start_time = pygame.time.get_ticks()/1000

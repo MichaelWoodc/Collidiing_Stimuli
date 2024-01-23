@@ -37,7 +37,7 @@ class ExperimentConfigWindow:
                 "clicked_colors": self.get_entry_value_by_label(phase_num, "Clicked Colors"),
                 "fixed_interval": self.get_entry_value_by_label(phase_num, "Reinforcement Interval"),
                 "fixed_ratio": self.get_entry_value_by_label(phase_num, "Reinforcement Ratio"),
-                "initial_speeds": self.get_entry_value_by_label(phase_num, "Speed"),
+                "initial_speeds": self.get_entry_value_by_label(phase_num, "Initial Speed"),
                 "speed_limits": self.get_entry_value_by_label(phase_num, "Speed Limits"),
                 # "fixed_interval": self.get_entry_value_by_label(phase_num, "Fixed Interval"),
                 "radius": self.get_entry_value_by_label(phase_num, "Radius"),
@@ -124,35 +124,32 @@ class ExperimentConfigWindow:
             tk.Label(phase_frame, text="Number of Balls").grid(row=2, column=0, pady=(0, 5), sticky="w")
             tk.Entry(phase_frame).grid(row=2, column=1, pady=(0, 5), padx=5, sticky="w")  # Number of Balls
             
-            tk.Label(phase_frame, text="Speed").grid(row=3, column=0, pady=(0, 5), sticky="w")
+            tk.Label(phase_frame, text="Initial Speed").grid(row=3, column=0, pady=(0, 5), sticky="w")
             tk.Entry(phase_frame).grid(row=3, column=1, pady=(0, 5), padx=5, sticky="w")  # Initial Speed
             
-            # tk.Label(phase_frame, text="Speed Limits").grid(row=4, column=0, pady=(0, 5), sticky="w")
-            # tk.Entry(phase_frame).grid(row=4, column=1, pady=(0, 5), padx=5, sticky="w")  # Speed Limits
+            tk.Label(phase_frame, text="Speed Limits").grid(row=4, column=0, pady=(0, 5), sticky="w")
+            tk.Entry(phase_frame).grid(row=4, column=1, pady=(0, 5), padx=5, sticky="w")  # Speed Limits
             
-            # tk.Label(phase_frame, text="Interval").grid(row=5, column=0, pady=(0, 5), sticky="w")
-            # tk.Entry(phase_frame).grid(row=5, column=1, pady=(0, 5), padx=5, sticky="w")  # Max Score Rate
-            
-            # tk.Label(phase_frame, text="Ratio").grid(row=7, column=0, pady=(0, 5), sticky="w")
-            # tk.Entry(phase_frame).grid(row=7, column=1, pady=(0, 5), padx=5, sticky="w")  # Max Score Rate
+            tk.Label(phase_frame, text="Fixed Interval").grid(row=5, column=0, pady=(0, 5), sticky="w")
+            tk.Entry(phase_frame).grid(row=5, column=1, pady=(0, 5), padx=5, sticky="w")  # Max Score Rate
 
             # Additional details for each ball
-            tk.Label(phase_frame, text=f"Stimuli").grid(row=9, column=0, pady=(10, 5), sticky="w")
+            tk.Label(phase_frame, text=f"Stimuli").grid(row=6, column=0, pady=(10, 5), sticky="w")
 
-            tk.Label(phase_frame, text="Color").grid(row=10, column=0, pady=(0, 5), sticky="w")
-            tk.Entry(phase_frame).grid(row=10, column=1, pady=(0, 5), padx=5, sticky="w")  # Color
+            tk.Label(phase_frame, text="Color").grid(row=7, column=0, pady=(0, 5), sticky="w")
+            tk.Entry(phase_frame).grid(row=7, column=1, pady=(0, 5), padx=5, sticky="w")  # Color
 
-            tk.Label(phase_frame, text="Clicked Color").grid(row=11, column=0, pady=(0, 5), sticky="w")
-            tk.Entry(phase_frame).grid(row=11, column=1, pady=(0, 5), padx=5, sticky="w")  # Color
+            tk.Label(phase_frame, text="Clicked Color").grid(row=8, column=0, pady=(0, 5), sticky="w")
+            tk.Entry(phase_frame).grid(row=8, column=1, pady=(0, 5), padx=5, sticky="w")  # Color
 
-            tk.Label(phase_frame, text="Reinforcement Interval").grid(row=12, column=0, pady=(0, 5), sticky="w")
-            tk.Entry(phase_frame).grid(row=12, column=1, pady=(0, 5), padx=5, sticky="w")  # Reinforcement Type
+            tk.Label(phase_frame, text="Reinforcement Interval").grid(row=9, column=0, pady=(0, 5), sticky="w")
+            tk.Entry(phase_frame).grid(row=9, column=1, pady=(0, 5), padx=5, sticky="w")  # Reinforcement Type
 
-            tk.Label(phase_frame, text="Reinforcement Ratio").grid(row=13, column=0, pady=(0, 5), sticky="w")
-            tk.Entry(phase_frame).grid(row=13, column=1, pady=(0, 5), padx=5, sticky="w")  # Reinforcement Value
+            tk.Label(phase_frame, text="Reinforcement Ratio").grid(row=10, column=0, pady=(0, 5), sticky="w")
+            tk.Entry(phase_frame).grid(row=10, column=1, pady=(0, 5), padx=5, sticky="w")  # Reinforcement Value
 
-            tk.Label(phase_frame, text="Radius").grid(row=14, column=0, pady=(0, 5), sticky="w")
-            tk.Entry(phase_frame).grid(row=14, column=1, pady=(0, 5), padx=5, sticky="w")  # Radius
+            tk.Label(phase_frame, text="Radius").grid(row=11, column=0, pady=(0, 5), sticky="w")
+            tk.Entry(phase_frame).grid(row=11, column=1, pady=(0, 5), padx=5, sticky="w")  # Radius
 
     def save_settings(self):
         file_name = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt")], initialdir="./experiment_settings")

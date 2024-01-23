@@ -5,18 +5,14 @@ Reinforcement Ratio: [1,1,1,1,1,1,1]
 Reinforcement Interval: [1,1,1,1,1,1,1]
 Clicked Color: {ARK_RED DARK_ORANGE DARK_YELLOW DARK_GREEN DARK_BLUE DARK_INDIGO DARK_VIOLE}
 Color: {ED ORANGE YELLOW GREEN BLUE INDIGO VIOLE}
-Fixed Interval: 
-Speed Limits: [(1,1),(1,1),(1,1),(1,1),(1,1),(1,1),(1,1) ]
-Initial Speed: 0.001,2,1,1,1,1,1
+Speed: [1,1,1,1,1,1,1]
 Number of Balls: 7
-Duration of Phase: 2
+Duration of Phase: 10
 Radius: [60,60,60,60,60,60,60]
 Reinforcement Ratio: [1,1,1,1,1,1,1]
 Reinforcement Interval: [1,1,1,1,1,1,1]
 Clicked Color: {ARK_RED DARK_ORANGE DARK_YELLOW DARK_GREEN DARK_BLUE DARK_INDIGO DARK_VIOLE}
 Color: {ED ORANGE YELLOW GREEN BLUE INDIGO VIOLE}
-Fixed Interval: 
-Speed Limits: [(1,1),(1,1),(1,1),(1,1),(1,1),(1,1),(1,1) ]
-Initial Speed: [0.1,1,1,1,1,1,1]
+Speed: [1,1,1,1,1,1,1]
 Number of Balls: 2
-Duration of Phase: 1
+Duration of Phase: 10
