@@ -295,7 +295,7 @@ class Simulation:
         if previous_collision_balls == collided_balls or previous_collision_balls == collided_balls.reverse():
             print('collision AGAIN')
 
-            return
+            pass
         else:
 
             m1, m2 = p1.radius ** 2, p2.radius ** 2
