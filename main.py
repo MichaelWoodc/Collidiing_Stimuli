@@ -1,4 +1,4 @@
-### Jan 22 2024
+### Jan 22 2024 test 2
 # %%
 import logtocsv
 # logtocsv.write_data(string)
