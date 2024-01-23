@@ -86,7 +86,7 @@ for n in range(number_phases):
         'block_score_until_clicks':block_score_until_clicks        
     }
     
-print(phase_values)
+# print(phase_values)
 # Initialize Pygame
 pygame.init()
 # pygame.font.init()
@@ -95,7 +95,7 @@ font = pygame.font.Font(None, 36)  # Choose a font and size
 
 experimentdate = strftime('%a %d %b %Y, %I:%M%p')
 logtocsv.write_data(experimentdate)
-print('experiment date:',experimentdate)
+# print('experiment date:',experimentdate)
 
 # Set up the window
 os.environ["SDL_VIDEO_CENTERED"] = "1"
@@ -156,13 +156,19 @@ color_names = {
 }
 
 reverse_lookup = {v: k for k, v in color_names.items()}
+previous_collision_balls = []
 
 text_rect = None
 # %%
+def is_overlap(ball, other_ball):
+    distance = np.hypot(ball.x - other_ball.x, ball.y - other_ball.y)
+    return distance < ball.radius + other_ball.radius
+
+
 class Balls:
 
     def __init__(self, x, y, dx, dy, radius, ball_color, clicked_color,min_score_delay,speed_limits,change_over_delay,scoring_intervals,reinforcement_ratio):#reinforcement_ratio
-        print('Speed limits',speed_limits)
+        # print('Speed limits',speed_limits)
         self.x = x
         self.y = y
         self.dx = dx
@@ -247,23 +253,21 @@ class Simulation:
                 color = base_colors[i]
                 radius = radii[i]
                 # ball_color = reverse_lookup.get(color)
-                print('Fixed Ratio',reinforcement_ratio)
+                # print('Fixed Ratio',reinforcement_ratio)
                 ball = Balls(x, y, dx, dy, radius,base_colors[i],clicked_colors[i],min_score_delay[i],speed_limits[i],block_score_until[i],scoring_intervals[i],reinforcement_ratio[i]) # ball = ball(x, y, dx, dy, radius, color, base_colors[i],clicked_colors[i],min_score_delay[i],change_over_delay[i],block_score_until[i],scoring_intervals[i],reinforcement_ratio[i])
                 event_string += str(ball.colorname)+ ' x='+ str(int(ball.x)) + ' y='+ str(int(ball.y)) + ' dx='+ str((ball.dx))+ ' dy='+ str((ball.dy)) + ' clicks='+ str((ball.clicks))+ ' score='+ str((ball.score))+', '
 
                 ### TODO: overlaps check here and edit 
-                overlaps = any(
-                    np.hypot(ball.x - p.x, ball.y - p.y) < ball.radius + p.radius
-                    or np.hypot(ball.x - p.x, ball.y - p.y) < p.radius - ball.radius
-                    for p in balls
-                )
-
+                overlaps = any(is_overlap(ball, other_ball) for other_ball in balls if ball != other_ball)
                 if not overlaps:
-                    print('Appending ball to list')
+                    # print('Appending ball to list', end='')
+                    print('number balls in list before adding current',len(balls))
                     balls.append(ball)
-                    # break
+                    break
                 else:
                     print('Overlap Detected')
+                    # balls.pop()
+                    # continue
                 color = reverse_lookup.get(ball.color, "Unknown Color")
                 event_string += ' ' + str(color) +':'
                 event_string += ' x='+ str(int(ball.x)) +', '+ ' y='+ str(int(ball.y))+', ' + ' dx='+ str((ball.dx))+ ', '+' dy='+ str((ball.dy))  +', '+' clicks='+ str((ball.clicks))+', '+' score='+ str((ball.score))+','
@@ -272,23 +276,37 @@ class Simulation:
         return balls
 
     def handle_collisions(self):
+        global previous_collision_balls, collided_balls
         for i in range(len(self.balls)):
             for j in range(i + 1, len(self.balls)):
                 if np.hypot(self.balls[i].x - self.balls[j].x,
-                            self.balls[i].y - self.balls[j].y) < self.balls[i].radius + self.balls[
-                    j].radius:
-                    self.change_velocities(self.balls[i], self.balls[j])
+                            self.balls[i].y - self.balls[j].y) < self.balls[i].radius + self.balls[j].radius:
+                    collided_balls = [self.balls[i], self.balls[j]]
+                    if previous_collision_balls == collided_balls or previous_collision_balls == collided_balls.reverse():
+                        print('collision AGAIN')
+                        previous_collision_balls = collided_balls[:]
+                    else:
+                        self.change_velocities(self.balls[i], self.balls[j])
+                        previous_collision_balls = collided_balls[:]
+                    print('Detected Collision',end=' ')
 
     def change_velocities(self, p1, p2):
-        m1, m2 = p1.radius ** 2, p2.radius ** 2
-        M = m1 + m2
-        r1, r2 = np.array([p1.x, p1.y]), np.array([p2.x, p2.y])
-        d = np.linalg.norm(r1 - r2) ** 2
-        v1, v2 = np.array([p1.dx, p1.dy]), np.array([p2.dx, p2.dy])
-        u1 = v1 - 2 * m2 / M * np.dot(v1 - v2, r1 - r2) / d * (r1 - r2)
-        u2 = v2 - 2 * m1 / M * np.dot(v2 - v1, r2 - r1) / d * (r2 - r1)
-        p1.dx, p1.dy = u1
-        p2.dx, p2.dy = u2
+        global previous_collision_balls, collided_balls
+        if previous_collision_balls == collided_balls or previous_collision_balls == collided_balls.reverse():
+            print('collision AGAIN')
+
+            return
+        else:
+
+            m1, m2 = p1.radius ** 2, p2.radius ** 2
+            M = m1 + m2
+            r1, r2 = np.array([p1.x, p1.y]), np.array([p2.x, p2.y])
+            d = np.linalg.norm(r1 - r2) ** 2
+            v1, v2 = np.array([p1.dx, p1.dy]), np.array([p2.dx, p2.dy])
+            u1 = v1 - 2 * m2 / M * np.dot(v1 - v2, r1 - r2) / d * (r1 - r2)
+            u2 = v2 - 2 * m1 / M * np.dot(v2 - v1, r2 - r1) / d * (r2 - r1)
+            p1.dx, p1.dy = u1
+            p2.dx, p2.dy = u2
 
     def advance(self, dt):
         for ball in self.balls:
@@ -308,7 +326,7 @@ def main():
     total_score = 0
 
     # while True:
-    print(current_seconds)
+    # print(current_seconds)
     while current_seconds < end_time:
         # Handle events here
         current_seconds = pygame.time.get_ticks()/1000 - start_time
@@ -340,7 +358,7 @@ def main():
                                 print('clicked:',ball.colorname,current_seconds , "can't score now, score blocked by time", end='')
                                 for ball in sim.balls:
                                     print(ball.block_score_until_time, end=' ,')
-                                print('')
+                                # print('')
                                 break
                             elif current_seconds >= ball.block_score_until_time:
                                 print('scored at',current_seconds,'Was blocked until: ',ball.block_score_until_time)
@@ -404,11 +422,11 @@ def main():
         pygame.display.flip()
         clock.tick(30)
     current_phase += 1
-    print('Current time',current_seconds,'end tiime',end_time)
+    # print('Current time',current_seconds,'end tiime',end_time)
     if current_phase <= number_phases:
         print('Current Phase',current_phase,'Number of Phases',number_phases,'Current time',current_seconds,'end time:',end_time,'Phase time:',phase_duration)
         phase_duration = phase_values[current_phase-1]['duration_of_phase'] # GET all values like thisvalues[0]['number_phases'] # GET all values like this values[current_phase-1]['phase_duration'] # GET all values like this
-        print('phase time',phase_duration)
+        # print('phase time',phase_duration)
         # end_time = current_seconds+int(phase_duration)
         clock = pygame.time.Clock()
         load_phase_settings()
@@ -440,7 +458,7 @@ if __name__ == "__main__":
         global phase_duration, number_phases, phase_values, end_time, clock, start_time, initial_speed, number_balls, values, radii
         start_time = pygame.time.get_ticks()/1000
         number_phases = returnedvalues[0]['number_phases']
-        print('Returned Values',returnedvalues)
+        # print('Returned Values',returnedvalues)
         phase_values = returnedvalues
         config_window.root.destroy()
         load_phase_settings()
