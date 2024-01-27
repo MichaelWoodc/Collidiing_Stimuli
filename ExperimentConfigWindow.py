@@ -35,7 +35,7 @@ class ExperimentConfigWindow:
 
 
                 # Additional details for each ball
-                "color": self.get_entry_value_by_label(phase_num, "Color"),
+                "ball_colors": self.get_entry_value_by_label(phase_num, "Color"),
                 "clicked_colors": self.get_entry_value_by_label(phase_num, "Clicked Colors"),
                 "fixed_interval": self.get_entry_value_by_label(phase_num, "Reinforcement Interval"),
                 "fixed_ratio": self.get_entry_value_by_label(phase_num, "Reinforcement Ratio"),
@@ -196,14 +196,27 @@ class ExperimentConfigWindow:
                         if len(parts) == 2:
                             key = parts[0].strip()
                             value = parts[1].strip()
-
+                            
                             # Handle special cases for "Color" and "Clicked Color"
                             if key == "Color" or key == "Clicked Color":
-                                # Parse the list from the string
-                                value_list = [item.strip() for item in value[1:-1].split(',')]
+                                # Parse the list from the string and remove extra characters
+                                value_list = [item.strip(" [\\]") for item in value.split(',')]
                                 entry_values_per_phase.setdefault(key, []).append(value_list)
                             else:
+                                # If it's not "Color" or "Clicked Color," treat it as a single string
                                 entry_values_per_phase.setdefault(key, []).append(value)
+                            
+                            
+
+                            # # Handle special cases for "Color" and "Clicked Color"
+                            # if key == "Color" or key == "Clicked Color":
+                            #     # Parse the list from the string and remove extra characters
+                            #     value_list = [item.strip(" [\\]") for item in value.split(',')]
+                            #     entry_values_per_phase.setdefault(key, []).append(value_list)
+                            # else:
+                            #     entry_values_per_phase.setdefault(key, []).append(value)
+
+
 
                 # Set participant ID and number of phases
                 self.participant_id_var.set(participant_id)

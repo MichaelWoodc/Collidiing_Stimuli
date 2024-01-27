@@ -431,7 +431,8 @@ if __name__ == "__main__":
         initial_speed_str = initial_speed_str.strip('[]')  # Remove brackets # initial_speed = [value.strip("[]") for value in initial_speed]
         ball_colors = [color.strip('[]') for color in phase_values[current_phase-1]['ball_colors'].split()]
         #ball_colors = (phase_values[current_phase-1]['ball_colors'].split()).strip('[]') # phase_values[current_phase-1]['ball_colors']  #phase_values[current_phase-1]['ball_colors']
-        # clicked_colors = [clicked_color.strip('[]') for clicked_color in phase_values[current_phase-1]['clicked_colors']] #clicked_colors = phase_values[current_phase-1]['clicked_colors']
+        clicked_colors = [clicked_color.strip('[]') for clicked_color in phase_values[current_phase-1]['clicked_colors'].split()] if phase_values[current_phase-1]['clicked_colors'] is not None else []
+
 
         try:
             initial_speed = [float(value) for value in initial_speed_str.split(',')] # initial_speed = [int(value) for value in initial_speed]

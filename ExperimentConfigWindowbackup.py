@@ -30,8 +30,7 @@ class ExperimentConfigWindow:
 
                 # Values from entry widgets for each phase
                 "duration_of_phase": self.get_entry_value_by_label(phase_num, "Duration of Phase"),
-                "number_of_balls": self.get_entry_value_by_label(phase_num, "Number of Balls"),
-
+                "number_balls": self.get_entry_value_by_label(phase_num, "Number of Balls"),
 
                 # Additional details for each ball
                 "color": self.get_entry_value_by_label(phase_num, "Color"),
