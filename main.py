@@ -58,8 +58,8 @@ change_to_delay = [1,1,1,1,1,1,1]
 initial_speed = [1,1,1,1,1,1,1]
 speed_limits = [(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5)]#(min,max)
 
-ball_colors = [RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, VIOLET]  # Rainbow colors
-clicked_colors = [DARK_BLUE, DARK_RED, DARK_ORANGE, DARK_YELLOW, DARK_GREEN,  DARK_INDIGO, DARK_VIOLET]  # Darker shades of rainbow colors
+ball_colors = [BLUE, RED, GREEN, YELLOW, ORANGE, INDIGO, VIOLET]# [RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, VIOLET]  # Rainbow colors
+clicked_colors = [DARK_BLUE, DARK_RED, DARK_GREEN, DARK_YELLOW, DARK_ORANGE, DARK_INDIGO, DARK_VIOLET]# [DARK_BLUE, DARK_RED, DARK_ORANGE, DARK_YELLOW, DARK_GREEN,  DARK_INDIGO, DARK_VIOLET]  # Darker shades of rainbow colors
 radii = [60,60,60,60,60,60,60]
 change_over_delay = [2,2,2,2,2,2,2]
 block_score_until_time = [0,0,0,0,0,0,0]
