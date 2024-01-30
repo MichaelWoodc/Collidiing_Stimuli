@@ -1,0 +1,4 @@
+Mon 29 Jan 2024, 11:00PM
+################# Phase 1 ######################
+################# INIT balls ######################
+0, Init stimuli, 0, Unknown Color x=1137 y=479 dx=-0.01912764490709186 dy=0.09815362041365669 clicks=0 score=0, Unknown Color x=853 y=422 dx=-0.0715178712719079 dy=-0.06989416348118642 clicks=0 score=0, Unknown Color x=999 y=185 dx=-0.07941228359550978 dy=-0.06077572882447672 clicks=0 score=0, 

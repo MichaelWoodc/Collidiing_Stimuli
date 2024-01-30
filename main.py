@@ -1,4 +1,4 @@
-### Jan 22 2024 test 2
+### Jan 30 2024 test 2
 # %%
 import logtocsv
 # logtocsv.write_data(string)
@@ -78,12 +78,30 @@ for n in range(number_phases):
         'change_to_delay':change_to_delay,
         'initial_speed': initial_speed,
         'speed_limits': speed_limits,
-        'ball_colors': ball_colors,
-        'clicked_colors':clicked_colors,
         'radii':radii,
         'block_score_until_time':block_score_until_time,
         'block_score_until_clicks':block_score_until_clicks        
     }
+    
+    
+# for n in range(number_phases):
+#     phase_values = {
+#         'phase_duration': phase_duration,
+#         'number_balls': phase_duration,
+#         'scoring_intervals':scoring_intervals,
+#         'variable_interval':variable_interval,
+#         'reinforcement_ratio':reinforcement_ratio,
+#         'variable_ratio':variable_ratio,
+#         'change_from_delay':change_from_delay,
+#         'change_to_delay':change_to_delay,
+#         'initial_speed': initial_speed,
+#         'speed_limits': speed_limits,
+#         'ball_colors': ball_colors,
+#         'clicked_colors':clicked_colors,
+#         'radii':radii,
+#         'block_score_until_time':block_score_until_time,
+#         'block_score_until_clicks':block_score_until_clicks        
+#     }
     
 print(phase_values)
 # Initialize Pygame
@@ -429,7 +447,7 @@ if __name__ == "__main__":
         # radii = [int(value) for value in radii.split(',')]
         initial_speed_str = phase_values[current_phase-1]['initial_speeds']
         initial_speed_str = initial_speed_str.strip('[]')  # Remove brackets # initial_speed = [value.strip("[]") for value in initial_speed]
-        ball_colors = [color.strip('[]') for color in phase_values[current_phase-1]['ball_colors'].split()]
+        # ball_colors = [color.strip('[]') for color in phase_values[current_phase-1]['ball_colors'].split()]
         #ball_colors = (phase_values[current_phase-1]['ball_colors'].split()).strip('[]') # phase_values[current_phase-1]['ball_colors']  #phase_values[current_phase-1]['ball_colors']
         # clicked_colors = [clicked_color.strip('[]') for clicked_color in phase_values[current_phase-1]['clicked_colors']] #clicked_colors = phase_values[current_phase-1]['clicked_colors']
 

@@ -1,0 +1,19 @@
+phases = []
+for n in range(number_phases):
+    phase_values = {
+        'phase_duration': phase_duration,
+        'number_balls': phase_duration,
+        'scoring_intervals':scoring_intervals,
+        'variable_interval':variable_interval,
+        'reinforcement_ratio':reinforcement_ratio,
+        'variable_ratio':variable_ratio,
+        'change_from_delay':change_from_delay,
+        'change_to_delay':change_to_delay,
+        'initial_speed': initial_speed,
+        'speed_limits': speed_limits,
+        'base_colors': base_colors,
+        'clicked_colors':clicked_colors,
+        'radii':radii,
+        'block_score_until_time':block_score_until_time,
+        'block_score_until_clicks':block_score_until_clicks        
+    }
