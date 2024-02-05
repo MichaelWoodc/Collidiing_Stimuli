@@ -121,7 +121,7 @@ padding = 300
 surface = pygame.display.set_mode()
 displayX, displayY = surface.get_size()
 windowX, windowY = displayX - padding, displayY - padding # Here I was subtracging padding
-screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE,display=1)  #screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE,display=1)
+screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE)  #screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE,display=1)
 pygame.display.set_caption("Resizable Window")
 
 
