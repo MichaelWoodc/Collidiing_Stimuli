@@ -1,4 +1,3 @@
-### Jan 30 2024 test 2
 # %%
 import logtocsv
 # logtocsv.write_data(string)
@@ -29,81 +28,31 @@ DARK_INDIGO = (54, 0, 94)
 VIOLET = (128, 0, 128)
 DARK_VIOLET = (80, 0, 80)
 SQUARE_COLOR = (255, 255, 255)
+SQUARE_THICKNESS = 4
 
 
-############## INIT all values with defaults ########################
-current_total_time = 0
-current_phase_time = 0
-start_time = 0
-end_time = 0
-current_phase = 1
-number_phases = 2
-phase_duration = 5
-number_balls = 3
 phase_values=None
-returnedvalues = None
+current_phase = 1
+number_phases = 3
+nparticles = 3
+end_time = 0
+# radius = 60
+phase_time = 0
+start_time = 0
+
 values=None
-yoked = False
-debug = False
-
-scoring_intervals = [1,1,1,1,1,1,1]
-variable_interval = [(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5)]#(min,max) # FLOAT!
-
-reinforcement_ratio = [1,1,1,1,1,1,1]
-variable_ratio = [(2,4),(2,4),(2,4),(2,4),(2,4),(2,4),(2,4)]#(min,max) #REMEMBER!  INT
-
-change_from_delay = [2,2,2,2,2,2,2] # We will take the min and max of this
-change_to_delay = [1,1,1,1,1,1,1]
-
-initial_speed = [1,1,1,1,1,1,1]
-speed_limits = [(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5),(.5,1.5)]#(min,max)
-
-ball_colors = [BLUE, RED, GREEN, YELLOW, ORANGE, INDIGO, VIOLET]# [RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, VIOLET]  # Rainbow colors
-clicked_colors = [DARK_BLUE, DARK_RED, DARK_GREEN, DARK_YELLOW, DARK_ORANGE, DARK_INDIGO, DARK_VIOLET]# [DARK_BLUE, DARK_RED, DARK_ORANGE, DARK_YELLOW, DARK_GREEN,  DARK_INDIGO, DARK_VIOLET]  # Darker shades of rainbow colors
+base_colors = [RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, VIOLET]  # Rainbow colors
+clicked_colors = [DARK_RED, DARK_ORANGE, DARK_YELLOW, DARK_GREEN, DARK_BLUE, DARK_INDIGO, DARK_VIOLET]  # Darker shades of rainbow colors
 radii = [60,60,60,60,60,60,60]
+min_score_delay = [0.1,0.1,0.1,0.1,0.1,0.1,0.1] #min_score_delay = [0.1,0.1,0.1,0.1,0.1,0.1,0.1]  [0.5,0.5,0.5,0.5,0.5,0.5,0.5]
 change_over_delay = [2,2,2,2,2,2,2]
-block_score_until_time = [0,0,0,0,0,0,0]
-block_score_until_clicks = [0,0,0,0,0,0,0]
+initial_speed_range = [(1,1),(1,1),(1,1),(1,1),(1,1),(1,1),(1,1)]#(min,max)
+speed_limits = [(1,1),(1,1),(1,1),(1,1),(1,1),(1,1),(1,1) ]#(min,max)
 
-phases = []
-for n in range(number_phases):
-    phase_values = {
-        'phase_duration': phase_duration,
-        'number_balls': phase_duration,
-        'scoring_intervals':scoring_intervals,
-        'variable_interval':variable_interval,
-        'reinforcement_ratio':reinforcement_ratio,
-        'variable_ratio':variable_ratio,
-        'change_from_delay':change_from_delay,
-        'change_to_delay':change_to_delay,
-        'initial_speed': initial_speed,
-        'speed_limits': speed_limits,
-        'radii':radii,
-        'block_score_until_time':block_score_until_time,
-        'block_score_until_clicks':block_score_until_clicks        
-    }
-    
-    
-# for n in range(number_phases):
-#     phase_values = {
-#         'phase_duration': phase_duration,
-#         'number_balls': phase_duration,
-#         'scoring_intervals':scoring_intervals,
-#         'variable_interval':variable_interval,
-#         'reinforcement_ratio':reinforcement_ratio,
-#         'variable_ratio':variable_ratio,
-#         'change_from_delay':change_from_delay,
-#         'change_to_delay':change_to_delay,
-#         'initial_speed': initial_speed,
-#         'speed_limits': speed_limits,
-#         'ball_colors': ball_colors,
-#         'clicked_colors':clicked_colors,
-#         'radii':radii,
-#         'block_score_until_time':block_score_until_time,
-#         'block_score_until_clicks':block_score_until_clicks        
-#     }
-    
-print(phase_values)
+fixed_interval = [1,1,1,1,1,1,1]
+fixed_ratio = [1,1,1,1,1,1,1]
+block_score_until = [0,0,0,0,0,0,0]
+
 # Initialize Pygame
 pygame.init()
 # pygame.font.init()
@@ -117,14 +66,15 @@ print('experiment date:',experimentdate)
 # Set up the window
 os.environ["SDL_VIDEO_CENTERED"] = "1"
 clock = pygame.time.Clock()
-padding = 300
+padding = 0
 surface = pygame.display.set_mode()
 displayX, displayY = surface.get_size()
 windowX, windowY = displayX - padding, displayY - padding # Here I was subtracging padding
-screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE)  #screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE,display=1)
+screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE)
 pygame.display.set_caption("Resizable Window")
 
-
+yoked = False
+debug = False
 # Set up the square
 square_color = (255, 0, 0)
 min_margin = 20
@@ -136,7 +86,6 @@ margin_left = margin
 margin_right = margin
 margin_top = margin
 margin_bottom = margin
-values = None
 
 bounce_box_left = margin_left
 bounce_box_right = windowX - margin_right
@@ -149,7 +98,7 @@ total_score = 0
 event = None
 current_seconds = 0
 #counters
-clicked_on_ball = False
+clicked_on_particle = False
 
 ## This portion is key for our "Reverse lookup" dictionary
 color_names = {
@@ -167,42 +116,37 @@ color_names = {
     "INDIGO": (75, 0, 130),
     "DARK_INDIGO": (54, 0, 94),
     "VIOLET": (128, 0, 128),
-    "DARK_VIOLET": (80, 0, 80)
+    "DARK_VIOLET": (80, 0, 80),
+    "SQUARE_COLOR": (255, 255, 255),
+    "SQUARE_THICKNESS": 4,
 }
-
-SQUARE_COLOR = (255, 255, 255)
-SQUARE_THICKNESS = 4
 
 reverse_lookup = {v: k for k, v in color_names.items()}
 
 text_rect = None
 # %%
-class Balls:
-
-    def __init__(self, x, y, dx, dy, radius, ball_color, clicked_color,min_score_delay,speed_limits,change_over_delay,scoring_intervals,reinforcement_ratio):#reinforcement_ratio
-        print('Speed limits',speed_limits)
+class Particle:
+    # particle = Particle(x, y, dx, dy, radius, color, particle_color,clicked_colors[i],min_score_delay,change_over_delay)
+    def __init__(self, x, y, dx, dy, radius, base_color ,particle_color, clicked_color,min_score_delay,change_over_delay,block_score_until,fixed_interval,fixed_ratio):
         self.x = x
         self.y = y
         self.dx = dx
         self.dy = dy
-        self.min_speed = speed_limits[0] 
-        self.max_speed = speed_limits[1]
         self.radius = radius
-        self.clicked_color = clicked_color
-        self.default_color = ball_color
-        self.color = ball_color
-        self.colorname = reverse_lookup.get(self.color, "Unknown Color")
+        self.base_color = base_color or (0, 0, 255)
+        self.clicked_color = clicked_color or (128, 128, 128)
+        self.color = self.base_color
+        self.colorname = particle_color
         self.clicked = False
         self.clicks = 0
         self.score = 0
-        self.block_score_until_time = 0
+        self.block_score_until = 0
         self.min_score_delay = min_score_delay
         self.change_over_delay = change_over_delay
         self.no_score_until = 0
-        self.valid_clicks = 0 # set the amount of clicks to zero, so we can use the fixed ratio & interval
-        self.scoring_intervals = scoring_intervals
-        
-        self.reinforcement_ratio = reinforcement_ratio
+        self.valid_clicks = 0 # set the amount of clicks to zero, so we can use the fixed ratio
+        self.fixed_interval = fixed_interval
+        self.fixed_ratio = fixed_ratio
 
     def draw(self, screen):
         pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
@@ -226,76 +170,76 @@ class Balls:
             self.dy = -abs(self.dy)
 
     def darken_color(self):
-        self.color = self.clicked_color# tuple(int(c * 0.8) for c in self.color) #self.color = tuple(int(c * 0.8) for c in self.base_color)
+        self.color = tuple(int(c * 0.8) for c in self.base_color)
 
-    def reset_color(self):
-        self.color = self.default_color
+    def lighten_color(self):
+        self.color = self.base_color
 
 # %%
 class Simulation:
-    def __init__(self, number_balls, radii): #def __init__(self, number_balls, radius=100, ball_colors=None, clicked_colors=None):
-        global ball_colors, clicked_colors
-        ball_colors = ball_colors  #ball_colors = ball_colors or [(0, 0, 255) for _ in range(number_balls)]
-        clicked_colors = clicked_colors or [(128, 128, 128) for _ in range(number_balls)]
-        self.balls = self.init_balls(number_balls, radii, ball_colors, clicked_colors,initial_speed,speed_limits,scoring_intervals,change_over_delay,block_score_until_time,reinforcement_ratio) #Init balls by passing values
+    def __init__(self, nparticles, radii): #def __init__(self, nparticles, radius=100, base_colors=None, clicked_colors=None):
+        global base_colors, clicked_colors
+        base_colors = base_colors  #base_colors = base_colors or [(0, 0, 255) for _ in range(nparticles)]
+        clicked_colors = clicked_colors or [(128, 128, 128) for _ in range(nparticles)]
+        self.particles = self.init_particles(nparticles, radii, base_colors, clicked_colors,min_score_delay,change_over_delay,block_score_until)
 
-    def init_balls(self, number_balls, radii, ball_colors, clicked_colors,initial_speed,speed_limits,min_score_delay,change_over_delay,block_score_until,reinforcement_ratio):
-        balls = []
-        logtocsv.write_data(('################# INIT balls ######################'))
+    def init_particles(self, nparticles, radii, base_colors, clicked_colors,min_score_delay,change_over_delay,block_score_until):
+        logtocsv.write_data(('################# INIT particles ######################'))
+        # global min_score_delay
+        particles = []
+        event_string = str(pygame.time.get_ticks()/1000) + ', Init stimuli, ' + str(total_score) + ', '
 
-        event_string = str(current_seconds) + ', Init stimuli, ' + str(total_score) + ', '  # event_string = str(pygame.time.get_ticks()/1000) + ', Init stimuli, ' + str(total_score) + ', '
-
-        for i in range(int(number_balls)):  
-            # reinforcement_ratio = reinforcement_ratio[i]  
+        for i in range(nparticles):
             radius = radii[i]
-            speed = initial_speed[i]/10
-
+            # change_over_delay = change_over_delay[i]
             while True:
                 x = np.random.uniform(radius, windowX - radii[i])
                 y = np.random.uniform(radius, windowY - radii[i])
-                angle = np.random.uniform(0, 2 * np.pi)  # Angle in radians
-
-                # Generate random signs for direction
-                dx_sign = np.random.choice([-1, 1])
-                dy_sign = np.random.choice([-1, 1])
-
-                # # Calculate dx and dy with both speed and direction
-                dx = dx_sign * speed * np.cos(angle)
-                dy = dy_sign * speed * np.sin(angle)
-                color = ball_colors[i]
+                dx = np.random.uniform(0.1, 0.12)
+                dy = np.random.uniform(0.1, 0.12)
+                color = base_colors[i]
                 radius = radii[i]
-                # ball_color = reverse_lookup.get(color)
-                print('Fixed Ratio',reinforcement_ratio)
-                ball = Balls(x, y, dx, dy, radius,ball_colors[i],clicked_colors[i],min_score_delay[i],speed_limits[i],block_score_until[i],scoring_intervals[i],reinforcement_ratio[i]) # ball = ball(x, y, dx, dy, radius, color, ball_colors[i],clicked_colors[i],min_score_delay[i],change_over_delay[i],block_score_until[i],scoring_intervals[i],reinforcement_ratio[i])
-                event_string += str(ball.colorname)+ ' x='+ str(int(ball.x)) + ' y='+ str(int(ball.y)) + ' dx='+ str((ball.dx))+ ' dy='+ str((ball.dy)) + ' clicks='+ str((ball.clicks))+ ' score='+ str((ball.score))+', '
-
-                ### TODO: overlaps check here and edit 
+                particle_color = reverse_lookup.get(color)
+                particle = Particle(x, y, dx, dy, radius, color, particle_color,clicked_colors[i],min_score_delay[i],change_over_delay[i],block_score_until[i],fixed_interval[i],fixed_ratio[i])
+                event_string += str(particle_color)+ ' x='+ str(int(particle.x)) + ' y='+ str(int(particle.y)) + ' dx='+ str((particle.dx))+ ' dy='+ str((particle.dy)) + ' clicks='+ str((particle.clicks))+ ' score='+ str((particle.score))+', '
+                # print(event_string)
                 overlaps = any(
-                    np.hypot(ball.x - p.x, ball.y - p.y) < ball.radius + p.radius
-                    or np.hypot(ball.x - p.x, ball.y - p.y) < p.radius - ball.radius
-                    for p in balls
+                    np.hypot(particle.x - p.x, particle.y - p.y) < particle.radius + p.radius
+                    or np.hypot(particle.x - p.x, particle.y - p.y) < p.radius - particle.radius
+                    for p in particles
                 )
 
                 if not overlaps:
-                    print('Appending ball to list')
-                    balls.append(ball)
+                    particles.append(particle)
                     break
-                else:
-                    print('Overlap Detected')
-                color = reverse_lookup.get(ball.color, "Unknown Color")
+                # event_string += str(particle_color)+ ' x='+ str(int(particle.x)) + ' y='+ str(int(particle.y)) + ' dx='+ str((particle.dx))+ ' dy='+ str((particle.dy)) + ' clicks='+ str((particle.clicks))+ ' score='+ str((particle.score))
+                color = reverse_lookup.get(particle.base_color, "Unknown Color")
                 event_string += ' ' + str(color) +':'
-                event_string += ' x='+ str(int(ball.x)) +', '+ ' y='+ str(int(ball.y))+', ' + ' dx='+ str((ball.dx))+ ', '+' dy='+ str((ball.dy))  +', '+' clicks='+ str((ball.clicks))+', '+' score='+ str((ball.score))+','
-
+                event_string += ' x='+ str(int(particle.x)) +', '+ ' y='+ str(int(particle.y))+', ' + ' dx='+ str((particle.dx))+ ', '+' dy='+ str((particle.dy))  +', '+' clicks='+ str((particle.clicks))+', '+' score='+ str((particle.score))+','
+                # 66.333, 0, Clicked ORANGE, x=370 y=540 RED x=688 y=431 dx=0.10210023218610983 dy=-0.11956539525490884 clicks=0 score=0 ORANGE x=355 y=557 dx=0.10852871091956233 dy=0.11269186047523638 clicks=1 score=0 YELLOW x=1177 y=538 dx=-0.11534114878188889 dy=-0.1124286037571398 clicks=0 score=0
+                # print(event_string)
+                for particle in particles:
+                    color = reverse_lookup.get(particle.base_color, "Unknown Color")
+                    event_string += ' ' + str(color) +':'
+                    event_string += ' x='+ str(int(particle.x)) +', '+ ' y='+ str(int(particle.y))+', ' + ' dx='+ str((particle.dx))+ ', '+' dy='+ str((particle.dy))  +', '+' clicks='+ str((particle.clicks))+', '+' score='+ str((particle.score))+','
+                    # 66.333, 0, Clicked ORANGE, x=370 y=540 RED x=688 y=431 dx=0.10210023218610983 dy=-0.11956539525490884 clicks=0 score=0 ORANGE x=355 y=557 dx=0.10852871091956233 dy=0.11269186047523638 clicks=1 score=0 YELLOW x=1177 y=538 dx=-0.11534114878188889 dy=-0.1124286037571398 clicks=0 score=0
+                    # print('init particle',event_string)
+        # print(event_string)
+        for particle in particles:
+            color = reverse_lookup.get(particle.base_color, "Unknown Color")
+            event_string += ' ' + str(color) +':'
+            event_string += ' x='+ str(int(particle.x)) +', '+ ' y='+ str(int(particle.y))+', ' + ' dx='+ str((particle.dx))+ ', '+' dy='+ str((particle.dy))  +', '+' clicks='+ str((particle.clicks))+', '+' score='+ str((particle.score))+','
+            # 66.333, 0, Clicked ORANGE, x=370 y=540 RED x=688 y=431 dx=0.10210023218610983 dy=-0.11956539525490884 clicks=0 score=0 ORANGE x=355 y=557 dx=0.10852871091956233 dy=0.11269186047523638 clicks=1 score=0 YELLOW x=1177 y=538 dx=-0.11534114878188889 dy=-0.1124286037571398 clicks=0 score=0
         logtocsv.write_data(event_string)    
-        return balls
+        return particles
 
     def handle_collisions(self):
-        for i in range(len(self.balls)):
-            for j in range(i + 1, len(self.balls)):
-                if np.hypot(self.balls[i].x - self.balls[j].x,
-                            self.balls[i].y - self.balls[j].y) < self.balls[i].radius + self.balls[
+        for i in range(len(self.particles)):
+            for j in range(i + 1, len(self.particles)):
+                if np.hypot(self.particles[i].x - self.particles[j].x,
+                            self.particles[i].y - self.particles[j].y) < self.particles[i].radius + self.particles[
                     j].radius:
-                    self.change_velocities(self.balls[i], self.balls[j])
+                    self.change_velocities(self.particles[i], self.particles[j])
 
     def change_velocities(self, p1, p2):
         m1, m2 = p1.radius ** 2, p2.radius ** 2
@@ -309,16 +253,15 @@ class Simulation:
         p2.dx, p2.dy = u2
 
     def advance(self, dt):
-        for ball in self.balls:
-            ball.advance(dt)
+        for particle in self.particles:
+            particle.advance(dt)
         self.handle_collisions()
 # %%
 def main():
-    global screen, windowX, windowY, bounce_box_right, bounce_box_top, square_rect, font, current_phase, number_phases, text_rect, current_seconds,clicked_on_ball, total_score, phase_duration, end_time, phase_values,returnedvalues
-    # callback()
+    global screen, windowX, windowY, bounce_box_right, bounce_box_top, square_rect, font, current_phase, number_phases, text_rect, current_seconds,clicked_on_particle, total_score, phase_time, end_time, phase_values, nparticles, values
     logtocsv.write_data(('################# Phase '+str(current_phase)+' ######################'))
     clock = pygame.time.Clock()
-    sim = Simulation(number_balls, radii)
+    sim = Simulation(nparticles, radii)
 
     shuffle_button_rect = pygame.Rect(windowX - 150, 20, 120, 30)
     shuffle_button_color = (255, 100, 100)
@@ -339,63 +282,73 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     # logtocsv.write_data(str(current_seconds)+' Testing doing a random string')
-
-                    for ball in sim.balls:
-                        # if current_seconds > ball.block_score_until:
+                    
+                    for particle in sim.particles:
+                        # if current_seconds > particle.block_score_until:
                         #     break
-                        if np.hypot(event.pos[0] - ball.x, event.pos[1] - ball.y) < ball.radius: # Handle the clicked ball
+                        if np.hypot(event.pos[0] - particle.x, event.pos[1] - particle.y) < particle.radius:
+                            # Handle the clicked particle
 
-                            # ball.block_score_until_time = current_seconds + ball.min_score_delay
-                            clicked_on_ball = True
-                            ball.darken_color()
-                            ball.clicked = True
-                            ball.clicks += 1
-                            # color = reverse_lookup.get(ball.color, "Unknown Color")
-                            #clicked_color = reverse_lookup.get(ball.color, "Unknown Color") #ball.color
-                            event_string += "Clicked: "+ball.colorname +', '
+                            # particle.block_score_until = current_seconds + particle.min_score_delay
+                            clicked_on_particle = True
+                            particle.darken_color()
+                            particle.clicked = True
+                            particle.clicks += 1
+                            clicked_color = particle.colorname
+                            event_string += "Clicked: "+clicked_color +', '
                             event_string += 'x='+ str(event.pos[0])+', ' + ' y='+ str(event.pos[1])+', '
-                            if current_seconds < ball.block_score_until_time:
-                                print('clicked:',ball.colorname,current_seconds , "can't score now, score blocked by time", end='')
-                                for ball in sim.balls:
-                                    print(ball.block_score_until_time, end=' ,')
+                            if current_seconds < particle.block_score_until:
+                                print('clicked:',particle.colorname,current_seconds , "can't score now, score blocked by time", end='')
+                                for particle in sim.particles:
+                                    print(particle.block_score_until, end=' ,')
                                 print('')
                                 break
-                            elif current_seconds >= ball.block_score_until_time:
-                                print('scored at',current_seconds,'Was blocked until: ',ball.block_score_until_time)
-                                ball.score += 1
+                            elif current_seconds >= particle.block_score_until:
+                                print('scored at',current_seconds,'Was blocked until: ',particle.block_score_until)
+                                particle.score += 1
                                 total_score +=1
-                                ball.block_score_until_time = current_seconds + ball.min_score_delay
-                                for ball in sim.balls:
-                                    if np.hypot(event.pos[0] - ball.x, event.pos[1] - ball.y) < ball.radius:
+                                particle.block_score_until = current_seconds + particle.min_score_delay
+                                for particle in sim.particles:
+                                    if np.hypot(event.pos[0] - particle.x, event.pos[1] - particle.y) < particle.radius:
                                         pass
                                     else:
-                                        ball.block_score_until_time = current_seconds + ball.change_over_delay
+                                        particle.block_score_until = current_seconds + particle.change_over_delay
 
-                if not clicked_on_ball and not shuffle_button_rect.collidepoint(event.pos):
+                            # Handle.clicked_stimuli(clicked_color,event.pos[0],event.pos[1])
+                            # else:
+                            #     # Handle particles that were not clicked
+                            #     # print('Else')
+                            #     particle.block_score_until = current_seconds + particle.change_over_delay
+
+                                # particle.block_score_until= current_seconds + particle.change_over_delay
+
+                if not clicked_on_particle and not shuffle_button_rect.collidepoint(event.pos):
                     event_string += 'Clicked: None, '
                     event_string += f'x={event.pos[0]}, y={event.pos[1]}, '
 
-                clicked_on_ball = False
+                clicked_on_particle = False
                 if shuffle_button_rect.collidepoint(event.pos):
                     # Check if the shuffle button is clicked
-                    sim = Simulation(number_balls, radii)  # Create a new simulation to reorient all balls
+                    sim = Simulation(nparticles, radii)  # Create a new simulation to reorient all balls
                     event_string += 'Clicked: Shuffle, '
                     event_string += f'x={event.pos[0]}, y={event.pos[1]}, '
                     # print('Clicked: Shuffle')
 
-                for ball in sim.balls:
-                    color = reverse_lookup.get(ball.color, "Unknown Color")
+                for particle in sim.particles:
+                    color = reverse_lookup.get(particle.base_color, "Unknown Color")
                     event_string += ' ' + str(color) +':'
-                    event_string += ' x='+ str(int(ball.x)) +', '+ ' y='+ str(int(ball.y))+', ' + ' dx='+ str((ball.dx))+ ', '+' dy='+ str((ball.dy))  +', '+' clicks='+ str((ball.clicks))+', '+' score='+ str((ball.score))+','
+                    event_string += ' x='+ str(int(particle.x)) +', '+ ' y='+ str(int(particle.y))+', ' + ' dx='+ str((particle.dx))+ ', '+' dy='+ str((particle.dy))  +', '+' clicks='+ str((particle.clicks))+', '+' score='+ str((particle.score))+','
+                    # 66.333, 0, Clicked ORANGE, x=370 y=540 RED x=688 y=431 dx=0.10210023218610983 dy=-0.11956539525490884 clicks=0 score=0 ORANGE x=355 y=557 dx=0.10852871091956233 dy=0.11269186047523638 clicks=1 score=0 YELLOW x=1177 y=538 dx=-0.11534114878188889 dy=-0.1124286037571398 clicks=0 score=0
+                    # print(event_string)
 
                 logtocsv.write_data(event_string)
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
-                    for ball in sim.balls:
-                        if ball.clicked:
-                            ball.reset_color()
-                            ball.clicked = False
+                    for particle in sim.particles:
+                        if particle.clicked:
+                            particle.lighten_color()
+                            particle.clicked = False
             elif event.type == pygame.VIDEORESIZE:
                 windowX, windowY = event.w, event.h
                 screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE)
@@ -407,65 +360,53 @@ def main():
         screen.fill((0, 0, 0))
         sim.advance(20.0)
 
-        for ball in sim.balls:
-            ball.draw(screen)
+        for particle in sim.particles:
+            particle.draw(screen)
 
         pygame.draw.rect(screen, SQUARE_COLOR, (margin, margin, windowX - 2 * (margin), windowY - 2 * (margin)),
                          SQUARE_THICKNESS)
+
+        # Draw the shuffle button
         pygame.draw.rect(screen, shuffle_button_color, shuffle_button_rect)
         text_score = font.render(f'Score: {total_score}', True, YELLOW)
         text_rect_score = text_score.get_rect(center=(windowX // 2, windowY - 60))
-        screen.blit(text_score, text_rect_score)        
+        screen.blit(text_score, text_rect_score)
+        # screen.blit(text_ball_2, text_rect_ball_2)
+        
         font = pygame.font.Font(None, 36)
         text = font.render("Shuffle", True, (255, 255, 255))
         screen.blit(text, (windowX - 140, 25))
         pygame.display.flip()
-        clock.tick(30)
+        clock.tick(60)
     current_phase += 1
     print('Current time',current_seconds,'end tiime',end_time)
     if current_phase <= number_phases:
-        print('Current Phase',current_phase,'Number of Phases',number_phases,'Current time',current_seconds,'end time:',end_time,'Phase time:',phase_duration)
-        phase_duration = phase_values[current_phase-1]['duration_of_phase'] # GET all values like thisvalues[0]['number_phases'] # GET all values like this values[current_phase-1]['phase_duration'] # GET all values like this
-        print('phase time',phase_duration)
-        # end_time = current_seconds+int(phase_duration)
+        print('Current Phase',current_phase,'Number of Phases',number_phases,'Current time',current_seconds,'end time:',end_time,'Phase time:',phase_time)
+        phase_time = phase_values[current_phase-1]['duration_of_phase'] # GET all values like thisvalues[0]['number_phases'] # GET all values like this values[current_phase-1]['phase_time'] # GET all values like this
+        print('phase tiime',phase_time)
+        nparticles = int(phase_values[current_phase-1]['number_of_balls'])
+        end_time += int(phase_time)
         clock = pygame.time.Clock()
-        load_phase_settings()
         main()
 # %%
 if __name__ == "__main__":
     root_main = tk.Tk()
-
-    def load_phase_settings():
-        global phase_duration, number_phases, phase_values, end_time, clock, start_time, initial_speed, number_balls, values, radii, ball_colors, clicked_colors
+    def callback(values):
+        global phase_time, number_phases, phase_values,end_time, clock,start_time,nparticles
+        print('In callback function')
+        number_phases=values[0]['number_phases']
+        # print(phase_values)
+        phase_values = values
+        phase_time = phase_values[current_phase-1]['duration_of_phase'] # GET all values like thisvalues[0]['number_phases'] # GET all values like this values[current_phase-1]['phase_time'] # GET all values like this
+        nparticles = int(values[current_phase-1]['number_of_balls'])
+        end_time += int(phase_time) #end_time += pygame.time.get_ticks()/1000+int(phase_time)
+        print('end time',end_time)
         clock = pygame.time.Clock()  # Reset the clock
-        start_time = pygame.time.get_ticks()/1000
-        phase_duration = phase_values[current_phase-1]['duration_of_phase']  # GET all values like this
-        end_time = current_seconds + int(phase_duration)  # end_time += pygame.time.get_ticks()/1000+int(phase_duration)
-        # number_balls = phase_values[current_phase-1]['number_balls']
-        # radii= phase_values[current_phase-1]['radii']
-        # radii = radii.strip('[]')
-        # radii = [int(value) for value in radii.split(',')]
-        initial_speed_str = phase_values[current_phase-1]['initial_speeds']
-        initial_speed_str = initial_speed_str.strip('[]')  # Remove brackets # initial_speed = [value.strip("[]") for value in initial_speed]
-        # ball_colors = [color.strip('[]') for color in phase_values[current_phase-1]['ball_colors'].split()]
-        #ball_colors = (phase_values[current_phase-1]['ball_colors'].split()).strip('[]') # phase_values[current_phase-1]['ball_colors']  #phase_values[current_phase-1]['ball_colors']
-        # clicked_colors = [clicked_color.strip('[]') for clicked_color in phase_values[current_phase-1]['clicked_colors']] #clicked_colors = phase_values[current_phase-1]['clicked_colors']
-
-        try:
-            initial_speed = [float(value) for value in initial_speed_str.split(',')] # initial_speed = [int(value) for value in initial_speed]
-        except:
-            print('Had to select default initial speeds, fix the program you dummy!')
-            initial_speed = [1,1,1,1,1,1,1]#[float(value) for value in initial_speed_str.split(',')] # initial_speed = [int(value) for value in initial_speed]
-
-    def callback(returnedvalues): # reassign all values
-        global phase_duration, number_phases, phase_values, end_time, clock, start_time, initial_speed, number_balls, values, radii
-        start_time = pygame.time.get_ticks()/1000
-        number_phases = returnedvalues[0]['number_phases']
-        print('Returned Values',returnedvalues)
-        phase_values = returnedvalues
+        # current_seconds = pygame.time.get_ticks() / 1000 ## current_seconds = pygame.time.Clock.get_time()    #
         config_window.root.destroy()
-        load_phase_settings()
-
+        # phase_values[0]['participant_id'] # GET all values like this
+        start_time = pygame.time.get_ticks()/1000
+    
     # Create an instance of the ExperimentConfigWindow class
     config_window = ExperimentConfigWindow(root_main)
     config_window.callback = callback  # Set the callback attribute
@@ -473,5 +414,5 @@ if __name__ == "__main__":
     # Start the Tkinter event loop
     root_main.mainloop()
     main()
-print(current_seconds)
 
+# %%
