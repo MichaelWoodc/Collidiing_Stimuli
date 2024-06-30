@@ -6,7 +6,6 @@ import pygame
 import sys
 import os
 import numpy as np
-import tkinter as tk
 from time import strftime # see format codes: https://docs.python.org/3/library/datetime.html#format-codes
 
 ## Define colors here
@@ -34,7 +33,7 @@ phase_options = {
     "phase_1": {
         "duration" : 1,
         "number_balls": 3,
-        "initial_speed": [10,1,1,1,1,1,1],
+        "initial_speed": [1,1,1,1,1,1,1],
         "radii": [60,60,60,60,60,60,60],
         "base_colors" : [RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, VIOLET],
         "clicked_colors" : [DARK_RED, DARK_ORANGE, DARK_YELLOW, DARK_GREEN, DARK_BLUE, DARK_INDIGO, DARK_VIOLET],
@@ -95,7 +94,6 @@ font = pygame.font.Font(None, 36)  # Choose a font and size
 
 experimentdate = strftime('%a %d %b %Y, %I:%M%p')
 logtocsv.write_data(experimentdate)
-print('experiment date:',experimentdate)
 
 # Set up the window
 os.environ["SDL_VIDEO_CENTERED"] = "1"
@@ -167,6 +165,7 @@ class Balls:
                  change_from_clicks,change_from_delay,
                  block_score_until_clicks,block_score_until_time,
                  score_time_required, score_clicks_required):#fixed_ratio
+        
         self.x = x
         self.y = y
         self.dx = dx
