@@ -6,10 +6,7 @@ import pygame
 import sys
 import os
 import numpy as np
-from ExperimentConfigWindow import ExperimentConfigWindow  # from ExperimentConfigWindow import ExperimentConfigWindow
 import tkinter as tk
-# from tkinter import filedialog
-
 from time import strftime # see format codes: https://docs.python.org/3/library/datetime.html#format-codes
 
 ## Define colors here
@@ -32,10 +29,10 @@ SQUARE_COLOR = (255, 255, 255)
 SQUARE_THICKNESS = 4
 
 ## Define phases here
-current_phase = 1
+
 phase_options = {
     "phase_1": {
-        "duration" : 3,
+        "duration" : 1,
         "number_balls": 3,
         "initial_speed": [10,1,1,1,1,1,1],
         "radii": [60,60,60,60,60,60,60],
@@ -53,7 +50,7 @@ phase_options = {
         "debug" : True
     },
     "phase_2": {
-        "duration" : 3,
+        "duration" : 1,
         "number_balls": 3,
         "initial_speed": [1,1,1,1,1,1,1],
         "radii": [60,60,60,60,60,60,60],
@@ -71,7 +68,7 @@ phase_options = {
         "debug" : True
     },
     "phase_3":  {
-        "duration" : 3,
+        "duration" : 1,
         "number_balls": 3,
         "initial_speed": [1,1,1,1,1,1,1],
         "radii": [60,60,60,60,60,60,60],
@@ -90,7 +87,7 @@ phase_options = {
     },
 }
 
-    
+
 # Initialize Pygame
 pygame.init()
 # pygame.font.init()
@@ -107,9 +104,8 @@ padding = 0
 surface = pygame.display.set_mode()
 displayX, displayY = surface.get_size()
 windowX, windowY = displayX - padding, displayY - padding # Here I was subtracging padding
-screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE,display=1)  #screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE,display=1)
+screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE)  #screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE,display=1)
 pygame.display.set_caption("Resizable Window")
-
 
 # Set up the square
 square_color = (255, 0, 0)
@@ -132,6 +128,7 @@ bounce_box_bottom = margin_bottom
 
 #Random variables for right here:
 total_score = 0
+current_phase = 1
 event = None
 current_seconds = 0
 #counters
@@ -344,6 +341,7 @@ def main():
         print(phase_options[phase]["duration"])
 
         end_time = current_seconds + int(phase_options[phase]["duration"])
+        print('End time:',end_time)
         start_time = current_seconds
         while current_seconds < end_time:
             # Handle events here
