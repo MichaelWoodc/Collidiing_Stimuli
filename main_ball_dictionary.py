@@ -110,7 +110,7 @@ padding = 0
 surface = pygame.display.set_mode()
 displayX, displayY = surface.get_size()
 windowX, windowY = displayX - padding, displayY - padding # Here I was subtracging padding
-screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE)  #screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE,display=1)
+screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE,display=1)  #screen = pygame.display.set_mode((windowX, windowY), pygame.RESIZABLE,display=1)
 pygame.display.set_caption("Resizable Window")
 
 # Set up the square
@@ -167,36 +167,43 @@ text_rect = None
 # %%
 class Balls:
     # ball = ball(x, y, dx, dy, radius, color, ball_color,clicked_colors[i],reinforcement_interval,change_over_delay)
-    def __init__(self, x, y, dx, dy, 
-                 radius, ball_color, clicked_color,speed,
-                 change_to_clicks,change_to_delay,
-                 change_from_clicks,change_from_delay,
-                 block_score_until_clicks,block_score_until_time,
-                 time_required, clicks_required):#fixed_ratio
-        
+    def __init__(self, phase_options, i):#fixed_ratio
+        print('')
+        x = np.random.uniform(phase_options['radii'][i], windowX - phase_options['radii'][i])
+        y = np.random.uniform(phase_options['radii'][i], windowY - phase_options['radii'][i])
+        angle = np.random.uniform(0, 2 * np.pi)  # Angle in radians
+
+        # Generate random signs for direction
+        dx_sign = np.random.choice([-1, 1])
+        dy_sign = np.random.choice([-1, 1])
+
+        # # Calculate dx and dy with both speed and direction
+        dx = dx_sign * phase_options['initial_speed'][i]/10 * np.cos(angle)
+        dy = dy_sign * phase_options['initial_speed'][i]/10 * np.sin(angle)
+        color = base_colors[i]
         self.x = x
         self.y = y
         self.dx = dx
         self.dy = dy
-        self.min_speed = speed
-        self.max_speed = None
-        self.radius = radius
-        self.clicked_color = clicked_color
-        self.default_color = ball_color
-        self.color = ball_color
+        # self.min_speed = speed
+        # self.max_speed = None
+        self.radius = phase_options['radii'][i]
+        self.clicked_color = phase_options['clicked_colors'][i]
+        self.default_color = phase_options['base_colors'][i]
+        self.color = phase_options['base_colors'][i]
         self.colorname = reverse_lookup.get(self.color, "Unknown Color")
         self.clicked = False
         self.clicks = 0
         self.valid_clicks = 0 # set the amount of clicks to zero, so we can use the fixed ratio & interval
         self.score = 0
-        self.block_score_until_time = block_score_until_time
-        self.block_score_until_clicks = block_score_until_clicks
-        self.change_to_clicks = change_to_clicks
-        self.change_to_delay = change_to_delay
-        self.change_from_clicks = change_from_clicks
-        self.change_from_delay = change_from_delay
-        self.time_required = time_required
-        self.clicks_required = clicks_required
+        self.block_score_until_time = phase_options['block_score_until_time'][i]
+        self.block_score_until_clicks = phase_options['block_score_until_clicks'][i]
+        self.change_to_clicks = phase_options['change_to_clicks'][i]
+        self.change_to_delay = phase_options['change_to_delay'][i]
+        self.change_from_clicks = phase_options['change_from_clicks'][i]
+        self.change_from_delay = phase_options['change_from_delay'][i]
+        self.time_required = phase_options['time_required'][i]
+        self.clicks_required = phase_options['clicks_required'][i]
         
 
     def draw(self, screen):
@@ -232,53 +239,19 @@ class Simulation:
         global base_colors, clicked_colors
         base_colors = phase_options['base_colors']  #base_colors = base_colors or [(0, 0, 255) for _ in range(number_balls)]
         
-        self.balls = self.init_balls(
-            phase_options['number_balls'], 
-            phase_options['initial_speed'], 
-            phase_options['radii'], 
-            phase_options['base_colors'],  phase_options['clicked_colors'],
-            phase_options['change_to_clicks'], phase_options['change_to_delay'],
-            phase_options['change_from_clicks'], phase_options['change_from_delay'],
-            phase_options['block_score_until_time'], phase_options['block_score_until_clicks'],
-            phase_options['time_required'],phase_options['clicks_required']            
-            ) #Init balls by passing values
+        self.balls = self.init_balls(phase_options) #Init balls by passing values
 
-    def init_balls(self, number_balls, initial_speed, radii, base_colors, clicked_colors,change_to_clicks, change_to_delay, change_from_clicks, change_from_delay,block_score_until_time,block_score_until_clicks,time_required,clicks_required):
+    def init_balls(self, phase_options):
+        print('Phase Options')
         balls = []
         logtocsv.write_data(('################# INIT balls ######################'))
         # balls = []
         event_string = str(current_seconds) + ', Init stimuli, ' + str(total_score) + ', '  # event_string = str(pygame.time.get_ticks()/1000) + ', Init stimuli, ' + str(total_score) + ', '
 
-        for i in range(int(number_balls)):    
-            radius = radii[i]
-            speed = initial_speed[i]/10
-            # speed_limits[i]
-            # change_over_delay = change_over_delay[i]
-            while True:
-                x = np.random.uniform(radius, windowX - radii[i])
-                y = np.random.uniform(radius, windowY - radii[i])
-                angle = np.random.uniform(0, 2 * np.pi)  # Angle in radians
-
-                # Generate random signs for direction
-                dx_sign = np.random.choice([-1, 1])
-                dy_sign = np.random.choice([-1, 1])
-
-                # # Calculate dx and dy with both speed and direction
-                dx = dx_sign * speed * np.cos(angle)
-                dy = dy_sign * speed * np.sin(angle)
-                color = base_colors[i]
-                radius = radii[i]
-                # ball_color = reverse_lookup.get(color)
-                ball = Balls(x, y, dx, dy, 
-                             radius,
-                             base_colors[i],clicked_colors[i],
-                             initial_speed[i],
-                             change_from_clicks[i],change_from_delay[i],
-                             change_to_clicks[i],change_to_delay[i],
-                             block_score_until_clicks[i], block_score_until_time[i],
-                             time_required[i],
-                             clicks_required[i]                             
-                             ) 
+        
+        for i in range(int(phase_options['number_balls'])):
+            while True:   
+                ball = Balls(phase_options,i) 
                 event_string += str(ball.colorname)+ ' x='+ str(int(ball.x)) + ' y='+ str(int(ball.y)) + ' dx='+ str((ball.dx))+ ' dy='+ str((ball.dy)) + ' clicks='+ str((ball.clicks))+ ' score='+ str((ball.score))+', '
 
                 
@@ -289,15 +262,16 @@ class Simulation:
                     for p in balls
                 )
 
+
+                color = reverse_lookup.get(ball.color, "Unknown Color")
+
                 if not overlaps:
+                    event_string += ' ' + str(color) +':'
+                    event_string += ' x='+ str(int(ball.x)) +', '+ ' y='+ str(int(ball.y))+', ' + ' dx='+ str((ball.dx))+ ', '+' dy='+ str((ball.dy))  +', '+' clicks='+ str((ball.clicks))+', '+' score='+ str((ball.score))+','
                     balls.append(ball)
                     break
                 else:
                     print('Overlap Detected')
-                color = reverse_lookup.get(ball.color, "Unknown Color")
-                event_string += ' ' + str(color) +':'
-                event_string += ' x='+ str(int(ball.x)) +', '+ ' y='+ str(int(ball.y))+', ' + ' dx='+ str((ball.dx))+ ', '+' dy='+ str((ball.dy))  +', '+' clicks='+ str((ball.clicks))+', '+' score='+ str((ball.score))+','
-
         # for ball in balls:
         #     color = reverse_lookup.get(ball.color, "Unknown Color")
         #     event_string += ' ' + str(color) +':'
