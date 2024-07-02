@@ -1,4 +1,7 @@
 # %%
+## TODO: implement scoring logic checks in and around line 351!
+## Remember: I added the correct attributes to the sim instance and each ball instance
+## Only need to get the right ones and implement the logic
 import logtocsv
 # logtocsv.write_data(string)
 # NOTE: Change over delay can be to or from given ball
@@ -39,7 +42,7 @@ reinforcement_blocked_until_time = None
 
 phase_options = {
     "phase_1": {
-        "duration" : 1,
+        "duration" : 10,
         "number_balls": 3,
         "initial_speed": [1,1,1,1,1,1,1],
         "radii": [60,60,60,60,60,60,60],
@@ -238,7 +241,14 @@ class Simulation:
     def __init__(self, phase_options): #def __init__(self, number_balls, radius=100, base_colors=None, clicked_colors=None):
         global base_colors, clicked_colors
         base_colors = phase_options['base_colors']  #base_colors = base_colors or [(0, 0, 255) for _ in range(number_balls)]
-        
+        self.last_clicked_ball = None
+        self.last_scored_ball = None
+        self.block_score_until_time = 0
+        self.block_change_over_score_until_clicks = 0
+        self.block_change_over_until_time = 0
+        self.block_score_until_clicks = 0
+        self.valid_clicks_since_score = 0
+        self.total_clicks = 0
         self.balls = self.init_balls(phase_options) #Init balls by passing values
 
     def init_balls(self, phase_options):
@@ -341,7 +351,7 @@ def main():
                             # if current_seconds > ball.block_score_until:
                             #     break
                             if np.hypot(event.pos[0] - ball.x, event.pos[1] - ball.y) < ball.radius: # Handle the clicked ball
-
+                                # NOTE: Come here and handle scoring logic with changes!
                                 # ball.block_score_until_time = current_seconds + ball.min_score_delay
                                 clicked_on_ball = True
                                 ball.darken_color()
