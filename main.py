@@ -228,83 +228,80 @@ class Balls:
 
 # %%
 class Simulation:
-    def __init__(self, phase_options): #def __init__(self, number_balls, radius=100, base_colors=None, clicked_colors=None):
+    def __init__(self, phase_options):
         global base_colors, clicked_colors
-        base_colors = phase_options['base_colors']  #base_colors = base_colors or [(0, 0, 255) for _ in range(number_balls)]
+        base_colors = phase_options['base_colors']
         
         self.balls = self.init_balls(
             phase_options['number_balls'], 
             phase_options['initial_speed'], 
             phase_options['radii'], 
-            phase_options['base_colors'],  phase_options['clicked_colors'],
-            phase_options['change_to_clicks'], phase_options['change_to_delay'],
-            phase_options['change_from_clicks'], phase_options['change_from_delay'],
-            phase_options['block_score_until_time'], phase_options['block_score_until_clicks'],
-            phase_options['time_required'],phase_options['clicks_required']            
-            ) #Init balls by passing values
+            phase_options['base_colors'],  
+            phase_options['clicked_colors'],
+            phase_options['change_to_clicks'], 
+            phase_options['change_to_delay'],
+            phase_options['change_from_clicks'], 
+            phase_options['change_from_delay'],
+            phase_options['block_score_until_time'], 
+            phase_options['block_score_until_clicks'],
+            phase_options['time_required'],
+            phase_options['clicks_required']            
+        )
 
-    def init_balls(self, number_balls, initial_speed, radii, base_colors, clicked_colors,change_to_clicks, change_to_delay, change_from_clicks, change_from_delay,block_score_until_time,block_score_until_clicks,time_required,clicks_required):
+    def init_balls(self, number_balls, initial_speed, radii, base_colors, clicked_colors, change_to_clicks, change_to_delay, change_from_clicks, change_from_delay, block_score_until_time, block_score_until_clicks, time_required, clicks_required):
         balls = []
         logtocsv.write_data(('################# INIT balls ######################'))
-        # balls = []
-        event_string = str(current_seconds) + ', Init stimuli, ' + str(total_score) + ', '  # event_string = str(pygame.time.get_ticks()/1000) + ', Init stimuli, ' + str(total_score) + ', '
+        event_string = str(current_seconds) + ', Init stimuli, ' + str(total_score) + ', '
 
         for i in range(int(number_balls)):    
             radius = radii[i]
-            speed = initial_speed[i]/10
-            # speed_limits[i]
-            # change_over_delay = change_over_delay[i]
+            speed = initial_speed[i] / 10
             while True:
-                x = np.random.uniform(radius, windowX - radii[i])
-                y = np.random.uniform(radius, windowY - radii[i])
-                angle = np.random.uniform(0, 2 * np.pi)  # Angle in radians
-
-                # Generate random signs for direction
-                dx_sign = np.random.choice([-1, 1])
-                dy_sign = np.random.choice([-1, 1])
-
-                # # Calculate dx and dy with both speed and direction
-                dx = dx_sign * speed * np.cos(angle)
-                dy = dy_sign * speed * np.sin(angle)
+                x = np.random.uniform(radius, windowX - radius)
+                y = np.random.uniform(radius, windowY - radius)
+                angle = np.random.uniform(0, 2 * np.pi)
+                dx = np.random.choice([-1, 1]) * speed * np.cos(angle)
+                dy = np.random.choice([-1, 1]) * speed * np.sin(angle)
                 color = base_colors[i]
-                radius = radii[i]
-                # ball_color = reverse_lookup.get(color)
-                ball = Balls(x, y, dx, dy, 
-                             radius,
-                             base_colors[i],clicked_colors[i],
-                             initial_speed[i],
-                             change_from_clicks[i],change_from_delay[i],
-                             change_to_clicks[i],change_to_delay[i],
-                             block_score_until_clicks[i], block_score_until_time[i],
-                             time_required[i],
-                             clicks_required[i]                             
-                             ) 
-                event_string += str(ball.colorname)+ ' x='+ str(int(ball.x)) + ' y='+ str(int(ball.y)) + ' dx='+ str((ball.dx))+ ' dy='+ str((ball.dy)) + ' clicks='+ str((ball.clicks))+ ' score='+ str((ball.score))+', '
 
-                
-                ### TODO: overlaps check here and edit 
-                overlaps = any(
-                    np.hypot(ball.x - p.x, ball.y - p.y) < ball.radius + p.radius
-                    or np.hypot(ball.x - p.x, ball.y - p.y) < p.radius - ball.radius
-                    for p in balls
-                )
+                new_ball = Balls(x, y, dx, dy, radius, base_colors[i], clicked_colors[i],
+                                initial_speed[i], change_from_clicks[i], change_from_delay[i],
+                                change_to_clicks[i], change_to_delay[i],
+                                block_score_until_clicks[i], block_score_until_time[i],
+                                time_required[i], clicks_required[i])
 
-                if not overlaps:
-                    balls.append(ball)
+                if not any(np.hypot(new_ball.x - existing_ball.x, new_ball.y - existing_ball.y) < new_ball.radius + existing_ball.radius for existing_ball in balls):
+                    balls.append(new_ball)
                     break
                 else:
                     print('Overlap Detected')
-                color = reverse_lookup.get(ball.color, "Unknown Color")
-                event_string += ' ' + str(color) +':'
-                event_string += ' x='+ str(int(ball.x)) +', '+ ' y='+ str(int(ball.y))+', ' + ' dx='+ str((ball.dx))+ ', '+' dy='+ str((ball.dy))  +', '+' clicks='+ str((ball.clicks))+', '+' score='+ str((ball.score))+','
 
-        # for ball in balls:
-        #     color = reverse_lookup.get(ball.color, "Unknown Color")
-        #     event_string += ' ' + str(color) +':'
-        #     event_string += ' x='+ str(int(ball.x)) +', '+ ' y='+ str(int(ball.y))+', ' + ' dx='+ str((ball.dx))+ ', '+' dy='+ str((ball.dy))  +', '+' clicks='+ str((ball.clicks))+', '+' score='+ str((ball.score))+','
-        #     # 66.333, 0, Clicked ORANGE, x=370 y=540 RED x=688 y=431 dx=0.10210023218610983 dy=-0.11956539525490884 clicks=0 score=0 ORANGE x=355 y=557 dx=0.10852871091956233 dy=0.11269186047523638 clicks=1 score=0 YELLOW x=1177 y=538 dx=-0.11534114878188889 dy=-0.1124286037571398 clicks=0 score=0
         logtocsv.write_data(event_string)    
         return balls
+
+    def draw_text_boxes(self, screen):
+        # Calculate text box padding and spacing
+        TEXT_BOX_PADDING = 10
+        x_offset = windowX - margin_right  # Position of the rightmost edge of the text boxes
+        y_offset = margin_top
+        
+        # Font and color settings
+        font = pygame.font.Font(None, 24)
+        text_color = BLACK
+
+        for i, ball in enumerate(self.balls):
+            # Create text for each ball
+            ball_info = (f"Ball {i + 1}: Color: {ball.colorname}\n"
+                        f"Position: ({int(ball.x)}, {int(ball.y)})\n"
+                        f"Speed: ({ball.dx:.2f}, {ball.dy:.2f})\n"
+                        f"Clicks: {ball.clicks}\n"
+                        f"Score: {ball.score}\n")
+
+            text_surface = font.render(ball_info, True, text_color)
+            screen.blit(text_surface, (x_offset + TEXT_BOX_PADDING, y_offset))
+
+            # Update y_offset for the next ball
+            y_offset += text_surface.get_height() + TEXT_BOX_PADDING
 
     def handle_collisions(self):
         for i in range(len(self.balls)):
@@ -313,7 +310,6 @@ class Simulation:
                             self.balls[i].y - self.balls[j].y) < self.balls[i].radius + self.balls[
                     j].radius:
                     self.change_velocities(self.balls[i], self.balls[j])
-
 
     def change_velocities(self, p1, p2):
         m1, m2 = p1.radius ** 2, p2.radius ** 2
@@ -330,6 +326,7 @@ class Simulation:
         for ball in self.balls:
             ball.advance(dt)
         self.handle_collisions()
+
 # %%
 def main():
     global screen, windowX, windowY, bounce_box_right, bounce_box_top, square_rect, font, text_rect, current_seconds,clicked_on_ball, total_score, phase_duration, current_phase
@@ -438,14 +435,43 @@ def main():
             pygame.draw.rect(screen, shuffle_button_color, shuffle_button_rect)
             text_score = font.render(f'Score: {total_score}', True, YELLOW)
             text_rect_score = text_score.get_rect(center=(windowX // 2, windowY - 60))
-            screen.blit(text_score, text_rect_score)        
+            screen.blit(text_score, text_rect_score)
+            
+            # text_ball_1 = font.render(f'Score: {total_score}', True, YELLOW)
+            # text_rect_ball_1 = text_ball_1.get_rect(center=(windowX - 80, 60))
+            # screen.blit(text_ball_1, text_rect_ball_1)
+            
+            # text_ball_2 = font.render(f'Score: {total_score}', True, YELLOW)
+            # text_rect_ball_2 = text_ball_2.get_rect(center=(windowX - 80, 90))
+            # screen.blit(text_ball_2, text_rect_ball_2)
+            # Example attributes to display (replace these with actual attributes you want to debug)
+            ball_attributes = [
+                sim.balls[1].clicks,
+                "Attribute 2: value2",
+                "Attribute 3: value3",
+                "Attribute 4: value4",
+                "Attribute 5: value5"
+            ]
+
+            # Starting y-position for the text
+            start_y = 90
+            line_height = 35  # Adjust this according to your font size and spacing
+
+            for i, attributes in enumerate(ball_attributes):
+                text = font.render(f'{attributes}', True, YELLOW)
+                text_rect = text.get_rect(center=(windowX - 250, start_y + i * line_height))
+                screen.blit(text, text_rect)
+            
+                    
             font = pygame.font.Font(None, 36)
             text = font.render("Shuffle", True, (255, 255, 255))
+            Simulation.draw_text_boxes(sim, screen)
             screen.blit(text, (windowX - 140, 25))
             pygame.display.flip()
             clock.tick(60)
         current_phase += 1
         print('Current time',current_seconds,'end tiime',end_time)
+        Simulation.draw_text_boxes(sim, screen)
 
 # %%
 if __name__ == "__main__":
