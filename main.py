@@ -1,4 +1,5 @@
 # %%
+from anyio import current_time
 import logtocsv
 # logtocsv.write_data(string)
 # NOTE: Change over delay can be to or from given ball
@@ -36,12 +37,9 @@ last_reinforced_ball = None
 last_reinforced_time = None
 reinforcement_blocked_until_time = None
 
-
-
-
 phase_options = {
     "phase_1": {
-        "duration" : 10,
+        "duration" : 300,
         "number_balls": 3,
         "initial_speed": [1,1,1,1,1,1,1],
         "radii": [60,60,60,60,60,60,60],
@@ -49,8 +47,8 @@ phase_options = {
         "clicked_colors" : [DARK_RED, DARK_ORANGE, DARK_YELLOW, DARK_GREEN, DARK_BLUE, DARK_INDIGO, DARK_VIOLET],
         "time_required" :[0.1,0.1,0.1,0.1,0.1,0.1,0.1],
         "clicks_required" :[1,1,1,1,1,1,1],
-        "change_to_clicks" : [5,10,1,1,1,1,1],
-        "change_to_delay" : [1,1,1,1,1,1,1],
+        "change_to_clicks" : [1,1,1,1,1,1,1],
+        "change_to_delay" : [5,10,1,1,1,1,1],
         "change_from_clicks" : [1,1,1,1,1,1,1],
         "change_from_delay": [1,1,1,1,1,1,1],
         "block_score_until_time":[0,0,0,0,0,0,0],
@@ -59,7 +57,7 @@ phase_options = {
         "debug" : True
     },
     "phase_2": {
-        "duration" : 20,
+        "duration" : 4,
         "number_balls": 3,
         "initial_speed": [1,1,1,1,1,1,1],
         "radii": [60,60,60,60,60,60,60],
@@ -77,7 +75,7 @@ phase_options = {
         "debug" : True
     },
     "phase_3":  {
-        "duration" : 30,
+        "duration" : 5,
         "number_balls": 3,
         "initial_speed": [1,1,1,1,1,1,1],
         "radii": [60,60,60,60,60,60,60],
@@ -85,7 +83,7 @@ phase_options = {
         "clicked_colors" : [DARK_RED, DARK_ORANGE, DARK_YELLOW, DARK_GREEN, DARK_BLUE, DARK_INDIGO, DARK_VIOLET],
         "time_required" :[0.1,0.1,0.1,0.1,0.1,0.1,0.1],
         "clicks_required" :[1,1,1,1,1,1,1],
-        "change_to_clicks" : [1,1,1,1,1,1,1],
+        "change_to_clicks" : [1,10,1,1,1,1,1],
         "change_to_delay" : [1,1,1,1,1,1,1],
         "change_from_clicks" : [1,1,1,1,1,1,1],
         "change_from_delay": [1,1,1,1,1,1,1],
@@ -234,10 +232,12 @@ class Simulation:
         global base_colors, clicked_colors
         base_colors = phase_options['base_colors']
         self.last_reinforced = None
+        self.block_score_until_time = 0
         self.last_clicked = None
         self.last_clicked = None
         self.last_clicked_time = None
-        
+        self.last_reinforcement_time = None ##TODO: Must integrate this with the other logic, alter this even if we click the same ball but don't score
+        self.last_reinforced_ball_click_time = None         ## Added 8/20
 
         self.balls = self.init_balls(
             phase_options['number_balls'],
@@ -272,13 +272,29 @@ class Simulation:
                 dx = np.random.choice([-1, 1]) * speed * np.cos(angle)
                 dy = np.random.choice([-1, 1]) * speed * np.sin(angle)
                 color = base_colors[i]
-
+                
+                
                 new_ball = Balls(x, y, dx, dy, radius, base_colors[i], clicked_colors[i],
-                                initial_speed[i], change_from_clicks[i], change_from_delay[i],
-                                change_to_clicks[i], change_to_delay[i],
-                                block_score_until_clicks[i], block_score_until_time[i],
-                                time_required[i], clicks_required[i])
+                    initial_speed[i], change_to_clicks[i], change_to_delay[i],
+                    change_from_clicks[i], change_from_delay[i],
+                    block_score_until_clicks[i], block_score_until_time[i],
+                    time_required[i], clicks_required[i])
 
+                # new_ball = Balls(x, y, dx, dy, radius, base_colors[i], clicked_colors[i],
+                #                 initial_speed[i], change_from_clicks[i], change_from_delay[i],
+                #                 change_to_clicks[i], change_to_delay[i],
+                #                 block_score_until_clicks[i], block_score_until_time[i],
+                #                 time_required[i], clicks_required[i])
+
+
+    # def __init__(self, x, y, dx, dy, 
+    #              radius, ball_color, clicked_color,speed,
+    #              change_to_clicks,change_to_delay,
+    #              change_from_clicks,change_from_delay,
+    #              block_score_until_clicks,block_score_until_time,
+    #              time_required, clicks_required):#fixed_ratio
+        
+        
                 if not any(np.hypot(new_ball.x - existing_ball.x, new_ball.y - existing_ball.y) < new_ball.radius + existing_ball.radius for existing_ball in balls):
                     balls.append(new_ball)
                     break
@@ -356,7 +372,7 @@ def main():
         end_time = current_seconds + int(phase_options[phase]["duration"])
         print('End time:',end_time)
         start_time = current_seconds
-        
+
         while current_seconds < end_time:
             # Handle events here
             current_seconds = pygame.time.get_ticks()/1000 #- start_time NOTE: Removed this because the start time per phase was always changing
@@ -388,27 +404,37 @@ def main():
                                 
                                 # Determine if we need to use changeover logic
                                 if sim.last_reinforced is not None and sim.last_reinforced != ball:
+                                    # ball.block_score_until_time = ball.change_to_delay + current_seconds
+                                    # if current_seconds <= ball.block_score_until_time:  #TODO: Add blocker for click number
+                                    #     print('Scoring blocked by change over delay')
+                                    #     break
                                     if sim.last_clicked == ball:
                                         ball.clicks_required -= 1
                                     else:
                                         ball.clicks_required = ball.change_to_clicks - 1
-                                        # pass    
+                                        ball.block_score_until_time = ball.change_to_delay + current_seconds
+                                        # ball.block_score_until_time = ball.change_to_delay + current_seconds
+                                        print('Clicked',ball.colorname)
+                                        # pass
                                     # Reset valid click count on any clicked ball
                                     # ball.valid_clicks = 0
                                     print('Changed COlors, clicked:',ball.colorname,'last color:',sim.last_reinforced)
 
-                                    Simulation.last_clicked = ball
+                                    # Simulation.last_clicked = ball
                                     # ball.clicks_required -= 1
                                     sim.last_clicked = ball
                                     
                                     if ball.clicks_required <=0:
+                                        if current_seconds < ball.block_score_until_time:##TODO: This NEEDS to interact with sim.block_score_until_time
+                                            break
                                         sim.last_reinforced = ball
                                         ball.score += 1
+                                        sim.last_reinforced_ball_click_time = current_seconds
                                         total_score +=1
                                         ball.valid_clicks += 1
                                         ball.clicks_required -= 1
                                                                     
-                                    if current_seconds < ball.block_score_until_time:
+                                    if current_seconds < ball.block_score_until_time or current_seconds < sim.block_score_until_time:
                                         print('clicked:',ball.colorname,current_seconds , "can't score now, score blocked by time", end='')
                                         for ball in sim.balls:
                                             print(ball.block_score_until_time, end=' ,')
@@ -424,6 +450,8 @@ def main():
                                         # ball.valid_clicks +=1
                                         print()
                                         break
+                                    # else:
+                                        # test=input('What would you like to do?')
                                 #"phase_1": {
                                 #     "duration" : 100,
                                 #     "number_balls": 3,
@@ -442,13 +470,15 @@ def main():
                                 #     "yoked" : False,
                                 #     "debug" : True
                                 # },
-                                elif current_seconds <= ball.block_score_until_time:  #TODO: Add blocker for click number
-                                    break
+                                    # elif current_seconds <= ball.block_score_until_time:  #TODO: Add blocker for click number
+                                    #     print('Scoring blocked by change over delay')
+                                    #     break
                                 
                                 else:
                                     print('scored at',current_seconds,'Was blocked until: ',ball.block_score_until_time)
                                     ball.score += 1
                                     sim.last_reinforced = ball
+                                    sim.last_reinforced_ball_click_time = current_seconds
                                     # ball.score += 1
                                     total_score +=1
                                     ball.block_score_until_time = current_seconds + ball.time_required
@@ -519,7 +549,8 @@ def main():
                 'end time:'+str(end_time),
                 "Time Remaining:"+str(round(end_time - current_seconds, 1)),
                 "Current Time"+str(round(current_seconds, 1)),
-                "Attribute 5: value5"
+                "Attribute 5: value5",
+                "scoring blocked until:",ball.block_score_until_time
             ]
 
             # Starting y-position for the text
