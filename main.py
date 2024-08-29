@@ -429,7 +429,7 @@ def main():
                                             break
                                         sim.last_reinforced = ball
                                         ball.score += 1
-                                        sim.last_reinforced_ball_click_time = current_seconds
+                                        sim.last_reinforced_ball_click_time = current_seconds # TODO: use this for change over delay
                                         total_score +=1
                                         ball.valid_clicks += 1
                                         ball.clicks_required -= 1
@@ -480,7 +480,7 @@ def main():
                                     sim.last_reinforced = ball
                                     sim.last_reinforced_ball_click_time = current_seconds
                                     # ball.score += 1
-                                    total_score +=1
+                                    total_score += 1
                                     ball.block_score_until_time = current_seconds + ball.time_required
                                     for ball in sim.balls:
                                         if np.hypot(event.pos[0] - ball.x, event.pos[1] - ball.y) < ball.radius:
